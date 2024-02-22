@@ -108,7 +108,9 @@ jobs:
                 echo 'source "/tmp/emsdk/emsdk_env.sh"' >> ~/.bash_profile
             
             - name: Build
-              run: EMSCRIPTEN=1 emmake make
+              run: | 
+                source ~/.bash_profile && \
+                EMSCRIPTEN=1 emmake make
 
             - name: Upload Artifact
               uses: actions/upload-artifact@v2
