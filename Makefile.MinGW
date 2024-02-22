@@ -1,4 +1,4 @@
-CXX = gcc
+CC = gcc
 
 CFLAGS=-Wall --std=c99
 
@@ -29,6 +29,7 @@ OBJ =   jc_reborn.o \
 all: $(EXE)
 
 $(EXE): $(OBJ)
+        $(CC) -o $(EXE) $(OBJ) $(LDFLAGS) $(LDLIBS) $(CFLAGS)
 
 clean:
-	rm -v $(OBJ) $(EXE) 2> /dev/null ; true
+	del -v $(OBJ) $(EXE) 2> /dev/null ; true
