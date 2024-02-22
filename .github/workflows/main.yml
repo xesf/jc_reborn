@@ -138,11 +138,11 @@ jobs:
                   asset_content_type: application/octet-stream
 
             - name: Upload Release Artifacts Windows
-             uses: actions/upload-release-asset@v1
-             env:
-                 GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-             with:
-                 upload_url: ${{ steps.create_release.outputs.upload_url }}
-                 asset_path: jc_reborn_windows-latest_v0${{ github.run_number }}/jc_reborn_windows-latest_v0${{ github.run_number }}.exe
-                 asset_name: jc_reborn_windows-latest_v0${{ github.run_number }}.exe
-                 asset_content_type: application/octet-stream
+              uses: actions/upload-release-asset@v1
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              with:
+                  upload_url: ${{ steps.create_release.outputs.upload_url }}
+                  asset_path: jc_reborn_windows-latest_v0${{ github.run_number }}/jc_reborn_windows-latest_v0${{ github.run_number }}.exe
+                  asset_name: jc_reborn_windows-latest_v0${{ github.run_number }}.exe
+                  asset_content_type: application/octet-stream
