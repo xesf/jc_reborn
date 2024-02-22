@@ -20,13 +20,13 @@ jobs:
               run: make
 
             - name: Rename
-              run: mv jc-reborn jc-reborn-mac-intel
+              run: mv jc_reborn jc_reborn_mac_intel
 
             - name: Upload Artifact
               uses: actions/upload-artifact@v2
               with:
-                  name: jc-reborn-mac-intel
-                  path: jc-reborn-mac-intel
+                  name: jc_reborn_mac_intel
+                  path: jc_reborn_mac_intel
 
     # mac-m1:
     #     name: macOS M1 Build
@@ -41,13 +41,13 @@ jobs:
     #           run: make
             
     #         - name: Rename
-    #           run: mv jc-reborn jc-reborn-mac-m1
+    #           run: mv jc_reborn jc_reborn_mac_m1
 
     #         - name: Upload Artifact
     #           uses: actions/upload-artifact@v2
     #           with:
-    #               name: jc-reborn-mac-m1
-    #               path: jc-reborn-mac-m1
+    #               name: jc_reborn_mac_m1
+    #               path: jc_reborn_mac_m1
 
     linux:
         name: Linux Build
@@ -63,13 +63,13 @@ jobs:
               run: make
 
             - name: Rename
-              run: mv jc-reborn jc-reborn-linux
+              run: mv jc_reborn jc_reborn_linux
 
             - name: Upload Artifact
               uses: actions/upload-artifact@v2
               with:
-                  name: jc-reborn-linux
-                  path: jc-reborn-linux
+                  name: jc_reborn_linux
+                  path: jc_reborn_linux
             
     # windows:
     #     name: Windows Build
@@ -85,13 +85,13 @@ jobs:
     #           run: make
 
     #         - name: Rename
-    #           run: mv jc-reborn.exe jc-reborn-windows.exe
+    #           run: mv jc_reborn.exe jc_reborn_windows.exe
 
     #         - name: Upload Artifact
     #           uses: actions/upload-artifact@v2
     #           with:
-    #               name: jc-reborn-windows
-    #               path: jc-reborn-windows.exe
+    #               name: jc_reborn_windows
+    #               path: jc_reborn_windows.exe
 
     web:
         name: Web Build
@@ -115,7 +115,7 @@ jobs:
               with:
                   name: jc-reborn-web
                   path: | 
-                    jc-reborn.js
-                    jc-reborn.wasm
+                    jc_reborn.js
+                    jc_reborn.wasm
                     index.html
                     favicon.ico
