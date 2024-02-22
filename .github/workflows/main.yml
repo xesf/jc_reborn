@@ -30,7 +30,7 @@ jobs:
               with:
                 msystem: mingw32
                 install: >-
-                  mingw-w64-i686-cc
+                  mingw-w64-i686-gcc
                   mingw-w64-i686-make
                   mingw-w64-i686-pkg-config
                   mingw-w64-i686-SDL2
