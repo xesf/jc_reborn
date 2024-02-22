@@ -1,7 +1,7 @@
 
-CFLAGS=-I/include/ -Wall --std=c99
+CFLAGS=-Wall --std=c99
 
-LDFLAGS=-L/lib/ -mwindows
+LDFLAGS=-mwindows
 
 LDLIBS=-lmingw32 -lSDL2main -lSDL2
 
@@ -31,4 +31,3 @@ $(EXE): $(OBJ)
 
 clean:
 	rm -v $(OBJ) $(EXE) 2> /dev/null ; true
-
