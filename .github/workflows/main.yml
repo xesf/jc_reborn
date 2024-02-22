@@ -75,9 +75,9 @@ jobs:
         steps:
             - name: Download Artifacts
               uses: actions/download-artifact@v2
-              with:
-                  name: jc_reborn_*
-                  path: jc_reborn
+
+            - name: Show Artifacts
+              run: ls -R
 
             - name: Create Release
               id: create_release
