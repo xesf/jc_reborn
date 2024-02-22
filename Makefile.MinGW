@@ -1,8 +1,7 @@
-CC = gcc
 
-CFLAGS=-Wall --std=c99
+CFLAGS=-I/include/ -Wall --std=c99
 
-LDFLAGS=-mwindows
+LDFLAGS=-L/lib/ -mwindows
 
 LDLIBS=-lmingw32 -lSDL2main -lSDL2
 
@@ -29,7 +28,7 @@ OBJ =   jc_reborn.o \
 all: $(EXE)
 
 $(EXE): $(OBJ)
-        $(CC) -o $(EXE) $(OBJ) $(LDFLAGS) $(LDLIBS) $(CFLAGS)
 
 clean:
-	del -v $(OBJ) $(EXE) 2> /dev/null ; true
+	rm -v $(OBJ) $(EXE) 2> /dev/null ; true
+
