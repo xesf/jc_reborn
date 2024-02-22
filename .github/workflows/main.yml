@@ -105,6 +105,9 @@ jobs:
                 source ~/.bash_profile && \
                 EMSCRIPTEN=1 emmake make
 
+            - name: Distribution
+              run: tar -czvf jc_reborn_web.tar.gz jc_reborn.js jc_reborn.wasm index.html favicon.ico
+
             - name: Create Release
               if: github.ref == 'refs/heads/master'
               id: create_release
@@ -124,11 +127,7 @@ jobs:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               with:
                   upload_url: ${{ steps.create_release.outputs.upload_url }}
-                  asset_path: | 
-                    jc_reborn.js
-                    jc_reborn.wasm
-                    index.html
-                    favicon.ico
+                  asset_path: jc_reborn_web.tar.gz
                   asset_name: jc_reborn_web.tar.gz
                   asset_content_type: application/gzip
 
