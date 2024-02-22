@@ -22,11 +22,107 @@ jobs:
             - name: Rename
               run: mv jc_reborn jc_reborn_mac_intel
 
-            - name: Upload Artifact
-              uses: actions/upload-artifact@v2
+            - name: Create Release
+              id: create_release
+              uses: actions/create-release@v1
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               with:
-                  name: jc_reborn_mac_intel
-                  path: jc_reborn_mac_intel
+                  tag_name: ${{ github.ref }}
+                  release_name: ${{ github.ref }}
+                  draft: false
+                  prerelease: false
+
+            - name: Upload Release Asset
+              uses: actions/upload-release-asset@v1
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              with:
+                  upload_url: ${{ steps.create_release.outputs.upload_url }}
+                  asset_path: jc_reborn_mac_intel
+                  asset_name: jc_reborn_mac_intel
+                  asset_content_type: application/octet-stream
+
+    linux:
+        name: Linux Build
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v3
+            
+            - name: Install SDL2
+              run: sudo apt-get install libsdl2-dev
+            
+            - name: Build
+              run: make
+
+            - name: Rename
+              run: mv jc_reborn jc_reborn_linux
+
+            - name: Create Release
+              id: create_release
+              uses: actions/create-release@v1
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              with:
+                  tag_name: ${{ github.ref }}
+                  release_name: ${{ github.ref }}
+                  draft: false
+                  prerelease: false
+
+            - name: Upload Release Asset
+              uses: actions/upload-release-asset@v1
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              with:
+                  upload_url: ${{ steps.create_release.outputs.upload_url }}
+                  asset_path: jc_reborn_linux
+                  asset_name: jc_reborn_linux
+                  asset_content_type: application/octet-stream
+
+    web:
+        name: Web Build
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v3
+            
+            - name: Install Emscripten
+              shell: bash
+              run: |
+                cd /tmp && git clone https://github.com/emscripten-core/emsdk && cd emsdk && ./emsdk install latest && ./emsdk activate latest && \
+                bash -c "source emsdk_env.sh" && \
+                echo 'source "/tmp/emsdk/emsdk_env.sh"' >> ~/.bash_profile
+            
+            - name: Build
+              run: | 
+                source ~/.bash_profile && \
+                EMSCRIPTEN=1 emmake make
+
+            - name: Create Release
+              id: create_release
+              uses: actions/create-release@v1
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              with:
+                  tag_name: ${{ github.ref }}
+                  release_name: ${{ github.ref }}
+                  draft: false
+                  prerelease: false
+
+            - name: Upload Release Asset
+              uses: actions/upload-release-asset@v1
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              with:
+                  upload_url: ${{ steps.create_release.outputs.upload_url }}
+                  asset_path: | 
+                    jc_reborn.js
+                    jc_reborn.wasm
+                    index.html
+                    favicon.ico
+                  asset_name: jc_reborn_web.tar.gz
+                  asset_content_type: application/gzip
 
     # mac-m1:
     #     name: macOS M1 Build
@@ -49,28 +145,6 @@ jobs:
     #               name: jc_reborn_mac_m1
     #               path: jc_reborn_mac_m1
 
-    linux:
-        name: Linux Build
-        runs-on: ubuntu-latest
-        steps:
-            - name: Checkout
-              uses: actions/checkout@v3
-            
-            - name: Install SDL2
-              run: sudo apt-get install libsdl2-dev
-            
-            - name: Build
-              run: make
-
-            - name: Rename
-              run: mv jc_reborn jc_reborn_linux
-
-            - name: Upload Artifact
-              uses: actions/upload-artifact@v2
-              with:
-                  name: jc_reborn_linux
-                  path: jc_reborn_linux
-            
     # windows:
     #     name: Windows Build
     #     runs-on: windows-latest
@@ -92,32 +166,3 @@ jobs:
     #           with:
     #               name: jc_reborn_windows
     #               path: jc_reborn_windows.exe
-
-    web:
-        name: Web Build
-        runs-on: ubuntu-latest
-        steps:
-            - name: Checkout
-              uses: actions/checkout@v3
-            
-            - name: Install Emscripten
-              shell: bash
-              run: |
-                cd /tmp && git clone https://github.com/emscripten-core/emsdk && cd emsdk && ./emsdk install latest && ./emsdk activate latest && \
-                bash -c "source emsdk_env.sh" && \
-                echo 'source "/tmp/emsdk/emsdk_env.sh"' >> ~/.bash_profile
-            
-            - name: Build
-              run: | 
-                source ~/.bash_profile && \
-                EMSCRIPTEN=1 emmake make
-
-            - name: Upload Artifact
-              uses: actions/upload-artifact@v2
-              with:
-                  name: jc-reborn-web
-                  path: | 
-                    jc_reborn.js
-                    jc_reborn.wasm
-                    index.html
-                    favicon.ico
