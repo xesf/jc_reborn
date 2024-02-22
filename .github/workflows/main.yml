@@ -20,9 +20,11 @@ jobs:
               run: make
 
             - name: Rename
+              if: github.ref == 'refs/heads/master'
               run: mv jc_reborn jc_reborn_mac_intel
 
             - name: Create Release
+              if: github.ref == 'refs/heads/master'
               id: create_release
               uses: actions/create-release@v1
               env:
@@ -34,6 +36,7 @@ jobs:
                   prerelease: false
 
             - name: Upload Release Asset
+              if: github.ref == 'refs/heads/master'
               uses: actions/upload-release-asset@v1
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -57,9 +60,11 @@ jobs:
               run: make
 
             - name: Rename
+              if: github.ref == 'refs/heads/master'
               run: mv jc_reborn jc_reborn_linux
 
             - name: Create Release
+              if: github.ref == 'refs/heads/master'
               id: create_release
               uses: actions/create-release@v1
               env:
@@ -71,6 +76,7 @@ jobs:
                   prerelease: false
 
             - name: Upload Release Asset
+              if: github.ref == 'refs/heads/master'
               uses: actions/upload-release-asset@v1
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -100,6 +106,7 @@ jobs:
                 EMSCRIPTEN=1 emmake make
 
             - name: Create Release
+              if: github.ref == 'refs/heads/master'
               id: create_release
               uses: actions/create-release@v1
               env:
@@ -111,6 +118,7 @@ jobs:
                   prerelease: false
 
             - name: Upload Release Asset
+              if: github.ref == 'refs/heads/master'
               uses: actions/upload-release-asset@v1
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
