@@ -9,7 +9,7 @@ jobs:
     build:
         strategy:
             matrix:
-                os: [ubuntu-latest, macos-latest] #, windows-latest]
+                os: [ubuntu-latest, macos-latest, windows-latest]
         name: ${{ matrix.os }} Build
         runs-on: ${{ matrix.os }}
         steps:
@@ -23,11 +23,16 @@ jobs:
                 elif [ ${{ matrix.os }} == 'ubuntu-latest' ]; then
                     sudo apt-get install libsdl2-dev
                 elif [ ${{ matrix.os }} == 'windows-latest' ]; then
-                    choco install sdl2
+                    choco install sdl2 mingw
                 fi
 
-            - name: Build
+            - name: Build Linux & Mac
+              if: ${{ matrix.os != 'windows-latest' }}
               run: make
+
+            - name: Build Windows
+              if: ${{ matrix.os == 'windows-latest' }}
+              run: mingw32-make -f Makefile.MinGW
 
             - name: Rename
               run: mv jc_reborn jc_reborn_${{ matrix.os }}_v0${{ github.run_number }}
