@@ -25,12 +25,12 @@ jobs:
                 elif [ ${{ matrix.os }} == 'windows-latest' ]; then
                     choco install sdl2
                 fi
-            
+
             - name: Build
               run: make
 
             - name: Rename
-              run: mv jc_reborn jc_reborn_${{ matrix.os }}
+              run: mv jc_reborn jc_reborn_${{ matrix.os }}_${{ github.run_number }}
 
             - name: Upload Artifact
               uses: actions/upload-artifact@v2
@@ -59,13 +59,13 @@ jobs:
                 EMSCRIPTEN=1 emmake make
 
             - name: Distribution
-              run: tar -czvf jc_reborn_web.tar.gz jc_reborn.js jc_reborn.wasm index.html favicon.ico
+              run: tar -czvf jc_reborn_web_${{ github.run_number }}.tar.gz jc_reborn.js jc_reborn.wasm index.html favicon.ico
 
             - name: Upload Artifact
               uses: actions/upload-artifact@v2
               with:
-                  name: jc_reborn_web
-                  path: jc_reborn_web.tar.gz
+                  name: jc_reborn_web_${{ github.run_number }}
+                  path: jc_reborn_web_${{ github.run_number }}.tar.gz
                   retention-days: 1
 
     release:
