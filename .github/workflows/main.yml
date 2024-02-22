@@ -30,8 +30,8 @@ jobs:
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               with:
-                  tag_name: ${{ github.ref }}
-                  release_name: ${{ github.ref }}
+                  tag_name: ${{ github.run_number }}
+                  release_name: ${{ github.run_number }}-mac
                   draft: false
                   prerelease: false
 
@@ -70,8 +70,8 @@ jobs:
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               with:
-                  tag_name: ${{ github.ref }}
-                  release_name: ${{ github.ref }}
+                  tag_name: ${{ github.run_number }}
+                  release_name: ${{ github.run_number }}-linux
                   draft: false
                   prerelease: false
 
@@ -112,8 +112,8 @@ jobs:
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               with:
-                  tag_name: ${{ github.ref }}
-                  release_name: ${{ github.ref }}
+                  tag_name: ${{ github.run_number }}
+                  release_name: ${{ github.run_number }}-web
                   draft: false
                   prerelease: false
 
