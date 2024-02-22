@@ -103,7 +103,7 @@ jobs:
             - name: Install Emscripten
               shell: bash
               run: |
-                cd /tmp && git clone https://github.com/emscripten-core/emsdk && cd emsdk && ./emsdk install && ./emsdk activate && \
+                cd /tmp && git clone https://github.com/emscripten-core/emsdk && cd emsdk && ./emsdk install latest && ./emsdk activate latest && \
                 bash -c "source emsdk_env.sh" && \
                 echo 'source "/tmp/emsdk/emsdk_env.sh"' >> ~/.bash_profile
             
