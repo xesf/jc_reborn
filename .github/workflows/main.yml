@@ -6,87 +6,39 @@ on:
         branches: [master]
 
 jobs:
-    mac-intel:
-        name: macOS Intel Build
-        runs-on: macos-latest
+    build:
+        strategy:
+            matrix:
+                os: [ubuntu-latest, macos-latest] #, windows-latest]
+        name: ${{ matrix.os }} Build
+        runs-on: ${{ matrix.os }}
         steps:
             - name: Checkout
               uses: actions/checkout@v3
             
             - name: Install SDL2
-              run:  brew install sdl2
+              run: |
+                if [ ${{ matrix.os }} == 'macos-latest' ]; then
+                    brew install sdl2
+                elif [ ${{ matrix.os }} == 'ubuntu-latest' ]; then
+                    sudo apt-get install libsdl2-dev
+                elif [ ${{ matrix.os }} == 'windows-latest' ]; then
+                    choco install sdl2
+                fi
             
             - name: Build
               run: make
 
             - name: Rename
-              if: github.ref == 'refs/heads/master'
-              run: mv jc_reborn jc_reborn_mac_intel
+              run: mv jc_reborn jc_reborn_${{ matrix.os }}
 
-            - name: Create Release
-              if: github.ref == 'refs/heads/master'
-              id: create_release
-              uses: actions/create-release@v1
-              env:
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            - name: Upload Artifact
+              uses: actions/upload-artifact@v2
               with:
-                  tag_name: ${{ github.run_number }}-mac
-                  release_name: ${{ github.run_number }}-mac
-                  draft: false
-                  prerelease: false
-
-            - name: Upload Release Asset
-              if: github.ref == 'refs/heads/master'
-              uses: actions/upload-release-asset@v1
-              env:
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-              with:
-                  upload_url: ${{ steps.create_release.outputs.upload_url }}
-                  asset_path: jc_reborn_mac_intel
-                  asset_name: jc_reborn_mac_intel
-                  asset_content_type: application/octet-stream
-
-    linux:
-        name: Linux Build
-        runs-on: ubuntu-latest
-        steps:
-            - name: Checkout
-              uses: actions/checkout@v3
-            
-            - name: Install SDL2
-              run: sudo apt-get install libsdl2-dev
-            
-            - name: Build
-              run: make
-
-            - name: Rename
-              if: github.ref == 'refs/heads/master'
-              run: mv jc_reborn jc_reborn_linux
-
-            - name: Create Release
-              if: github.ref == 'refs/heads/master'
-              id: create_release
-              uses: actions/create-release@v1
-              env:
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-              with:
-                  tag_name: ${{ github.run_number }}-linux
-                  release_name: ${{ github.run_number }}-linux
-                  draft: false
-                  prerelease: false
-
-            - name: Upload Release Asset
-              if: github.ref == 'refs/heads/master'
-              uses: actions/upload-release-asset@v1
-              env:
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-              with:
-                  upload_url: ${{ steps.create_release.outputs.upload_url }}
-                  asset_path: jc_reborn_linux
-                  asset_name: jc_reborn_linux
-                  asset_content_type: application/octet-stream
-
-    web:
+                  name: jc_reborn_${{ matrix.os }}
+                  path: jc_reborn_${{ matrix.os }}
+  
+    web-build:
         name: Web Build
         runs-on: ubuntu-latest
         steps:
@@ -108,68 +60,33 @@ jobs:
             - name: Distribution
               run: tar -czvf jc_reborn_web.tar.gz jc_reborn.js jc_reborn.wasm index.html favicon.ico
 
+            - name: Upload Artifact
+              uses: actions/upload-artifact@v2
+              with:
+                  name: jc_reborn_web
+                  path: jc_reborn_web.tar.gz
+
+    release:
+        name: Release
+        runs-on: ubuntu-latest
+        needs: [build, web-build]
+        steps:
+            - name: Download Artifacts
+              uses: actions/download-artifact@v2
+              with:
+                  name: jc_reborn_*
+                  path: jc_reborn
+
             - name: Create Release
-              if: github.ref == 'refs/heads/master'
               id: create_release
               uses: actions/create-release@v1
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               with:
-                  tag_name: ${{ github.run_number }}-web
-                  release_name: ${{ github.run_number }}-web
+                  tag_name: v0.${{ github.run_number }}
+                  release_name: v0.${{ github.run_number }}
+                  body: |
+                        Changes in this Release
+                        - Build for macOS, Linux and Web
                   draft: false
                   prerelease: false
-
-            - name: Upload Release Asset
-              if: github.ref == 'refs/heads/master'
-              uses: actions/upload-release-asset@v1
-              env:
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-              with:
-                  upload_url: ${{ steps.create_release.outputs.upload_url }}
-                  asset_path: jc_reborn_web.tar.gz
-                  asset_name: jc_reborn_web.tar.gz
-                  asset_content_type: application/gzip
-
-    # mac-m1:
-    #     name: macOS M1 Build
-    #     runs-on: macos-14
-    #     steps:
-    #         - uses: actions/checkout@v4
-            
-    #         - name: Install SDL2
-    #           run:  brew install sdl2
-            
-    #         - name: Build
-    #           run: make
-            
-    #         - name: Rename
-    #           run: mv jc_reborn jc_reborn_mac_m1
-
-    #         - name: Upload Artifact
-    #           uses: actions/upload-artifact@v2
-    #           with:
-    #               name: jc_reborn_mac_m1
-    #               path: jc_reborn_mac_m1
-
-    # windows:
-    #     name: Windows Build
-    #     runs-on: windows-latest
-    #     steps:
-    #         - name: Checkout
-    #           uses: actions/checkout@v3
-            
-    #         - name: Install SDL2
-    #           run: choco install sdl2
-            
-    #         - name: Build
-    #           run: make
-
-    #         - name: Rename
-    #           run: mv jc_reborn.exe jc_reborn_windows.exe
-
-    #         - name: Upload Artifact
-    #           uses: actions/upload-artifact@v2
-    #           with:
-    #               name: jc_reborn_windows
-    #               path: jc_reborn_windows.exe
