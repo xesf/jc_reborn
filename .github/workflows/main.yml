@@ -30,13 +30,13 @@ jobs:
               run: make
 
             - name: Rename
-              run: mv jc_reborn jc_reborn_${{ matrix.os }}_${{ github.run_number }}
+              run: mv jc_reborn jc_reborn_${{ matrix.os }}_v0${{ github.run_number }}
 
             - name: Upload Artifact
               uses: actions/upload-artifact@v2
               with:
-                  name: jc_reborn_${{ matrix.os }}_${{ github.run_number }}
-                  path: jc_reborn_${{ matrix.os }}_${{ github.run_number }}
+                  name: jc_reborn_${{ matrix.os }}_v0${{ github.run_number }}
+                  path: jc_reborn_${{ matrix.os }}_v0${{ github.run_number }}
                   retention-days: 1
   
     web-build:
@@ -59,13 +59,13 @@ jobs:
                 EMSCRIPTEN=1 emmake make
 
             - name: Distribution
-              run: tar -czvf jc_reborn_web_${{ github.run_number }}.tar.gz jc_reborn.js jc_reborn.wasm index.html favicon.ico
+              run: tar -czvf jc_reborn_web_v0${{ github.run_number }}.tar.gz jc_reborn.js jc_reborn.wasm index.html favicon.ico
 
             - name: Upload Artifact
               uses: actions/upload-artifact@v2
               with:
-                  name: jc_reborn_web_${{ github.run_number }}
-                  path: jc_reborn_web_${{ github.run_number }}.tar.gz
+                  name: jc_reborn_web_v0${{ github.run_number }}
+                  path: jc_reborn_web_v0${{ github.run_number }}.tar.gz
                   retention-days: 1
 
     release:
@@ -100,8 +100,8 @@ jobs:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               with:
                   upload_url: ${{ steps.create_release.outputs.upload_url }}
-                  asset_path: jc_reborn_macos-latest_${{ github.run_number }}
-                  asset_name: jc_reborn_macos-latest_${{ github.run_number }}
+                  asset_path: jc_reborn_macos-latest_v0${{ github.run_number }}/jc_reborn_macos-latest_v0${{ github.run_number }}
+                  asset_name: jc_reborn_macos-latest_v0${{ github.run_number }}
                   asset_content_type: application/octet-stream
 
             - name: Upload Release Artifacts Linux
@@ -110,8 +110,8 @@ jobs:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               with:
                   upload_url: ${{ steps.create_release.outputs.upload_url }}
-                  asset_path: jc_reborn_ubuntu-latest_${{ github.run_number }}
-                  asset_name: jc_reborn_ubuntu-latest_${{ github.run_number }}
+                  asset_path: jc_reborn_ubuntu-latest_v0${{ github.run_number }}/jc_reborn_ubuntu-latest_v0${{ github.run_number }}
+                  asset_name: jc_reborn_ubuntu-latest_v0${{ github.run_number }}
                   asset_content_type: application/octet-stream
 
             - name: Upload Release Artifacts Web
@@ -120,6 +120,6 @@ jobs:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               with:
                   upload_url: ${{ steps.create_release.outputs.upload_url }}
-                  asset_path: jc_reborn_web.tar.gz
-                  asset_name: jc_reborn_web_${{ github.run_number }}
+                  asset_path: jc_reborn_web_v0${{ github.run_number }}/jc_reborn_web_v0${{ github.run_number }}.tar.gz
+                  asset_name: jc_reborn_web_v0${{ github.run_number }}
                   asset_content_type: application/octet-stream
