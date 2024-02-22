@@ -22,17 +22,25 @@ jobs:
                     brew install sdl2
                 elif [ ${{ matrix.os }} == 'ubuntu-latest' ]; then
                     sudo apt-get install libsdl2-dev
-                elif [ ${{ matrix.os }} == 'windows-latest' ]; then
-                    choco install sdl2 mingw
                 fi
 
-            - name: Build Linux & Mac
-              if: ${{ matrix.os != 'windows-latest' }}
-              run: make
-
-            - name: Build Windows
+            - name: Set up MSYS2
               if: ${{ matrix.os == 'windows-latest' }}
-              run: mingw32-make -f Makefile.MinGW
+              uses: msys2/setup-msys2@v2
+              with:
+                msystem: mingw32
+                install: >-
+                  mingw-w64-i686-cc
+                  mingw-w64-i686-pkg-config
+                  mingw-w64-i686-SDL2
+
+            - name: Build
+              run: | 
+                if [ ${{ matrix.os }} == 'windows-latest' ]; then
+                    mingw32-make -f Makefile.MinGW
+                elif [ ${{ matrix.os }} == 'ubuntu-latest' ]; then
+                    make
+                fi
 
             - name: Rename
               run: mv jc_reborn jc_reborn_${{ matrix.os }}_v0${{ github.run_number }}
@@ -128,3 +136,13 @@ jobs:
                   asset_path: jc_reborn_web_v0${{ github.run_number }}/jc_reborn_web_v0${{ github.run_number }}.tar.gz
                   asset_name: jc_reborn_web_v0${{ github.run_number }}.tar.gz
                   asset_content_type: application/octet-stream
+
+            - name: Upload Release Artifacts Windows
+             uses: actions/upload-release-asset@v1
+             env:
+                 GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+             with:
+                 upload_url: ${{ steps.create_release.outputs.upload_url }}
+                 asset_path: jc_reborn_windows-latest_v0${{ github.run_number }}/jc_reborn_windows-latest_v0${{ github.run_number }}.exe
+                 asset_name: jc_reborn_windows-latest_v0${{ github.run_number }}.exe
+                 asset_content_type: application/octet-stream
