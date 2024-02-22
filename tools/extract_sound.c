@@ -25,8 +25,8 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "mytypes.h"
-#include "utils.h"
+#include "../mytypes.h"
+#include "../utils.h"
 
 int offsets[] = {
     0x1DC00, 0x20800, 0x20E00,
@@ -43,7 +43,7 @@ int offsets[] = {
 int main()
 {
     FILE *f;
-    f = fopen("data/SCRANTIC.SCR","r");
+    f = fopen("../data/SCRANTIC.SCR","r");
 
     for (int j=0; j < 26; j++) {
         FILE *fw;
@@ -65,7 +65,7 @@ int main()
         fseek(f, offsets[j], SEEK_SET);
         fread(buffer, sizeof(char), size, f);
 
-        sprintf(filename, "data/sound%d.wav", j + 1);
+        sprintf(filename, "../data/sound%d.wav", j + 1);
         fw = fopen(filename,"w");
         fwrite(buffer, sizeof(char), size, fw);
         fclose(fw);

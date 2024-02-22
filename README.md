@@ -2,7 +2,7 @@
 
 Johnny Reborn is an open source engine for the classic Johnny Castaway screen saver, developed by Dynamix for Windows 3.x and published by Sierra, back in 1992.
 
-It is written in C using the SDL2 library, and was successfully compiled and tested on Linux as well as Windows (MinGW), both 32 and 64 bits.
+It is written in C using the SDL2 library, and was successfully compiled and tested on Linux, on MacOSX, on Chrome and FireFox via Emscripten, as well as Windows (MinGW), both 32 and 64 bits.
 
 
 ## How to install
@@ -11,6 +11,8 @@ For the screen saver to work, you'll need the three data files from the original
 software: `RESOURCE.MAP`, `RESOURCE.001` and `SCRANTIC.SCR` and save it under a `data` folder in the root directory.
 
 Use `extract_sound` to dump the audio files from `SCRANTIC.SCR` file.
+
+> cd tools
 
 > make -f Makefile.sound
 
@@ -22,6 +24,17 @@ Use `extract_sound` to dump the audio files from `SCRANTIC.SCR` file.
 > make
 
 > ./jc_reborn window
+
+
+## How to run on the browser
+
+Emscripten installation details can be found here: https://emscripten.org/docs/getting_started/downloads.html
+
+> EMSCRIPTEN=1 emmake make
+
+> emrun --no_browser --port 8081 .
+
+Then open your browser and go to `http://localhost:8081`
 
 
 By default, the engine runs full screen and plays the life of Johnny on his island, as the original did.
