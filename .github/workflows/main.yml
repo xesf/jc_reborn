@@ -35,8 +35,8 @@ jobs:
             - name: Upload Artifact
               uses: actions/upload-artifact@v2
               with:
-                  name: jc_reborn_${{ matrix.os }}
-                  path: jc_reborn_${{ matrix.os }}
+                  name: jc_reborn_${{ matrix.os }}_${{ github.run_number }}
+                  path: jc_reborn_${{ matrix.os }}_${{ github.run_number }}
                   retention-days: 1
   
     web-build:
@@ -69,6 +69,7 @@ jobs:
                   retention-days: 1
 
     release:
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
         name: Release
         runs-on: ubuntu-latest
         needs: [build, web-build]
@@ -92,3 +93,33 @@ jobs:
                         - Build for macOS, Linux and Web
                   draft: false
                   prerelease: false
+            
+            - name: Upload Release Artifacts Mac
+              uses: actions/upload-release-asset@v1
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              with:
+                  upload_url: ${{ steps.create_release.outputs.upload_url }}
+                  asset_path: jc_reborn_macos-latest_${{ github.run_number }}
+                  asset_name: jc_reborn_macos-latest_${{ github.run_number }}
+                  asset_content_type: application/octet-stream
+
+            - name: Upload Release Artifacts Linux
+              uses: actions/upload-release-asset@v1
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              with:
+                  upload_url: ${{ steps.create_release.outputs.upload_url }}
+                  asset_path: jc_reborn_ubuntu-latest_${{ github.run_number }}
+                  asset_name: jc_reborn_ubuntu-latest_${{ github.run_number }}
+                  asset_content_type: application/octet-stream
+
+            - name: Upload Release Artifacts Web
+              uses: actions/upload-release-asset@v1
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              with:
+                  upload_url: ${{ steps.create_release.outputs.upload_url }}
+                  asset_path: jc_reborn_web.tar.gz
+                  asset_name: jc_reborn_web_${{ github.run_number }}
+                  asset_content_type: application/octet-stream
