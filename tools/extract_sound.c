@@ -45,7 +45,7 @@ int main()
     FILE *f;
     f = fopen("../data/SCRANTIC.SCR","r");
 
-    for (int j=0; j < 26; j++) {
+    for (int j=0; j < 24; j++) {
         FILE *fw;
         uint8 *data;
         int size = 0;

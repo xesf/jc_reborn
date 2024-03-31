@@ -81,7 +81,7 @@ void soundInit()
 
     SDL_AudioSpec audioSpec;
 
-    for (int i=0; i < NUM_OF_SOUNDS; i++) {
+    for (int i=1; i < NUM_OF_SOUNDS; i++) {
 
         char filename[20];
 
