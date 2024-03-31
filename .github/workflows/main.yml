@@ -72,6 +72,7 @@ jobs:
             - name: Build
               run: | 
                 source ~/.bash_profile && \
+                EMSCRIPTEN=1 emmake make clean && \
                 EMSCRIPTEN=1 emmake make
 
             - name: Distribution
