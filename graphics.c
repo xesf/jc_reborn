@@ -180,7 +180,8 @@ void grToggleFullScreen()
 
 void grUpdateDisplay(struct TTtmThread *ttmBackgroundThread,
                      struct TTtmThread *ttmThreads,
-                     struct TTtmThread *ttmHolidayThread)
+                     struct TTtmThread *ttmHolidayThread,
+                     struct TTtmThread *ttmCloudsThread)
 {
     // Blit the background
     if (grBackgroundSfc != NULL)
@@ -188,6 +189,14 @@ void grUpdateDisplay(struct TTtmThread *ttmBackgroundThread,
                         NULL,
                         SDL_GetWindowSurface(sdl_window),
                         &grScreenOrigin);
+
+    // Blit the Clouds
+    if (ttmCloudsThread != NULL)
+        if (ttmCloudsThread->isRunning)
+            SDL_BlitSurface(ttmCloudsThread->ttmLayer,
+                            NULL,
+                            SDL_GetWindowSurface(sdl_window),
+                            &grScreenOrigin);
 
     // If not NULL, blit the optional layer of saved zones
     if (grSavedZonesLayer != NULL)

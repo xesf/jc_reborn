@@ -68,10 +68,12 @@ static int    numAdsChunksLocal;
 
 static struct TTtmSlot ttmBackgroundSlot;
 static struct TTtmSlot ttmHolidaySlot;
+static struct TTtmSlot ttmCloudsSlot;
 static struct TTtmSlot ttmSlots[MAX_TTM_SLOTS];
 
 static struct TTtmThread ttmBackgroundThread;
 static struct TTtmThread ttmHolidayThread;
+static struct TTtmThread ttmCloudsThread;
 static struct TTtmThread ttmThreads[MAX_TTM_THREADS];
 
 static struct TAdsChunk adsChunks[MAX_ADS_CHUNKS];
@@ -418,6 +420,7 @@ void adsInit()    // Init slots and threads for TTM scripts  // TODO : rename
     grUpdateDelay = 0;
     ttmBackgroundThread.isRunning = 0;
     ttmHolidayThread.isRunning    = 0;
+    ttmCloudsThread.isRunning     = 0;
     numThreads = 0;
     adsStopRequested = 0;
 }
@@ -433,7 +436,7 @@ void adsPlaySingleTtm(char *ttmName)  // TODO - tempo
     while (ttmThreads[0].ip < ttmSlots[0].dataSize) {
         ttmPlay(ttmThreads);
         ttmThreads[0].isRunning = 1;
-        grUpdateDisplay(NULL, ttmThreads, NULL);
+        grUpdateDisplay(NULL, ttmThreads, NULL, NULL);
         grUpdateDelay = ttmThreads[0].delay;
     }
 
@@ -681,15 +684,19 @@ void adsPlay(char *adsName, uint16 adsTag)
 
     // Main ADS loop
     while (numThreads) {
-
         if (ttmBackgroundThread.isRunning && ttmBackgroundThread.timer == 0) {
             debugMsg("    ------> Animate bg");
             ttmBackgroundThread.timer = ttmBackgroundThread.delay;
             islandAnimate(&ttmBackgroundThread);
         }
 
-        for (int i=0; i < MAX_TTM_THREADS; i++) {
+        if (ttmCloudsThread.isRunning && ttmCloudsThread.timer == 0) {
+            debugMsg("    ------> Animate clouds");
+            ttmCloudsThread.timer = ttmCloudsThread.delay;
+            islandAnimateClouds(&ttmCloudsThread);
+        }
 
+        for (int i=0; i < MAX_TTM_THREADS; i++) {
             // Call ttmPlay() for each thread which timer reaches 0
             if (ttmThreads[i].isRunning && ttmThreads[i].timer == 0) {
                 debugMsg("    ------> Thread #%d", i);
@@ -699,7 +706,6 @@ void adsPlay(char *adsName, uint16 adsTag)
         }
 
         if (debugMode) {
-
             debugMsg("\n  +------ THREADS: %d -------", numThreads);
 
             if (ttmBackgroundThread.isRunning) {
@@ -707,6 +713,13 @@ void adsPlay(char *adsName, uint16 adsTag)
                     debugMsg("  | #bg:");
                     debugMsg("  |   delay........... %d" , ttmBackgroundThread.delay    );
                     debugMsg("  |   timer........... %d" , ttmBackgroundThread.timer    );
+            }
+
+            if (ttmCloudsThread.isRunning) {
+                    debugMsg("  |");
+                    debugMsg("  | #cloudss:");
+                    debugMsg("  |   delay........... %d" , ttmCloudsThread.delay    );
+                    debugMsg("  |   timer........... %d" , ttmCloudsThread.timer    );
             }
 
             for (int i=0; i < MAX_TTM_THREADS; i++) {
@@ -726,13 +739,18 @@ void adsPlay(char *adsName, uint16 adsTag)
         }
 
         // Refresh display
-        grUpdateDisplay(&ttmBackgroundThread, ttmThreads, &ttmHolidayThread);
+        grUpdateDisplay(&ttmBackgroundThread, ttmThreads, &ttmHolidayThread, &ttmCloudsThread);
 
         // Determine min timer through all threads
         uint16 mini = 300;
 
         if (ttmBackgroundThread.isRunning)
             mini = ttmBackgroundThread.timer;
+
+        if (ttmCloudsThread.isRunning) {
+            if (ttmCloudsThread.timer < mini)
+                mini = ttmCloudsThread.timer;
+        }
 
         for (int i=0; i < MAX_TTM_THREADS; i++) {
 
@@ -748,6 +766,7 @@ void adsPlay(char *adsName, uint16 adsTag)
 
         // Decrease all timers by the shortest one, and wait that amount of time
         ttmBackgroundThread.timer -= mini;
+        ttmCloudsThread.timer -= mini;
 
         for (int i=0; i < MAX_TTM_THREADS; i++)
             if (ttmThreads[i].isRunning)
@@ -837,7 +856,7 @@ void adsPlayBench()  // TODO - tempo
             for (int i=0; i < numLayers; i++)
                 benchPlay(&ttmThreads[i], i);
 
-            grUpdateDisplay(NULL, ttmThreads, NULL);
+            grUpdateDisplay(NULL, ttmThreads, NULL, NULL);
 
             counter++;
         }
@@ -856,7 +875,7 @@ void adsPlayIntro()
 {
     grLoadScreen("INTRO.SCR");
     grUpdateDelay = 100;
-    grUpdateDisplay(NULL, ttmThreads, NULL);
+    grUpdateDisplay(NULL, ttmThreads, NULL, NULL);
     grFadeOut();
     ttmResetSlot(&ttmSlots[0]);
 }
@@ -887,6 +906,17 @@ void adsInitIsland()
     ttmHolidayThread.timer     = 0;
 
     islandInitHoliday(&ttmHolidayThread);
+
+    // Clouds
+
+    ttmInitSlot(&ttmCloudsSlot);
+
+    ttmCloudsThread.ttmSlot   = &ttmCloudsSlot;
+    ttmCloudsThread.isRunning = 3;
+    ttmCloudsThread.delay     = 8;
+    ttmCloudsThread.timer     = 0;
+
+    islandAnimateClouds(&ttmCloudsThread);
 }
 
 
@@ -898,6 +928,11 @@ void adsReleaseIsland()
     if (ttmHolidayThread.isRunning) {
         ttmHolidayThread.isRunning = 0;
         grFreeLayer(ttmHolidayThread.ttmLayer);
+    }
+
+    if (ttmCloudsThread.isRunning) {
+        ttmCloudsThread.isRunning = 0;
+        grFreeLayer(ttmCloudsThread.ttmLayer);
     }
 }
 
@@ -932,6 +967,12 @@ void adsPlayWalk(int fromSpot, int fromHdg, int toSpot, int toHdg)
             islandAnimate(&ttmBackgroundThread);
         }
 
+        if (!ttmCloudsThread.timer) {
+            debugMsg("    ------> Animate clouds");
+            ttmCloudsThread.timer = ttmCloudsThread.delay;
+            islandAnimateClouds(&ttmCloudsThread);
+        }
+
         if (!ttmThreads[0].timer) {
             debugMsg("    ------> Animate walking");
             ttmThreads[0].timer = ttmThreads[0].delay =
@@ -939,17 +980,20 @@ void adsPlayWalk(int fromSpot, int fromHdg, int toSpot, int toHdg)
         }
 
         // Refresh display
-        grUpdateDisplay(&ttmBackgroundThread, ttmThreads, &ttmHolidayThread);
+        grUpdateDisplay(&ttmBackgroundThread, ttmThreads, &ttmHolidayThread, &ttmCloudsThread);
 
         // Determine min timer from the two threads
         uint16 mini = 300;
         if (ttmBackgroundThread.timer < ttmThreads[0].timer)
             mini = ttmBackgroundThread.timer;
+        else if (ttmCloudsThread.timer < ttmThreads[0].timer)
+            mini = ttmCloudsThread.timer;
         else
             mini = ttmThreads[0].timer;
 
         // Decrease all timers by the shortest one, and wait that amount of time
         ttmBackgroundThread.timer -= mini;
+        ttmCloudsThread.timer     -= mini;
         ttmThreads[0].timer       -= mini;
 
         debugMsg(" ******* WAIT: %d ticks *******\n", mini);

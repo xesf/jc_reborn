@@ -21,13 +21,25 @@
  *
  */
 
+#include "mytypes.h"
+
+struct TCloudState {
+    sint32 numClouds;
+    sint32 windDirection;
+    sint32 windSpeed[5];
+    sint32 cloudNo[5];
+    sint32 xPos[5];
+    sint32 yPos[5];
+};
+
 struct TIslandState {
-    int lowTide;
-    int night;
-    int raft;
-    int holiday;
-    int xPos;
-    int yPos;
+    sint32 lowTide;
+    sint32 night;
+    sint32 raft;
+    sint32 holiday;
+    sint32 xPos;
+    sint32 yPos;
+    struct TCloudState clouds;
 };
 
 extern struct TIslandState islandState;
@@ -35,4 +47,4 @@ extern struct TIslandState islandState;
 void islandInit(struct TTtmThread *ttmThread);
 void islandAnimate(struct TTtmThread *ttmThread);
 void islandInitHoliday(struct TTtmThread *ttmThread);
-
+void islandAnimateClouds(struct TTtmThread *ttmThread);

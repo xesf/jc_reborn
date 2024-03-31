@@ -27,9 +27,10 @@
 #include "mytypes.h"
 #include "graphics.h"
 #include "island.h"
+#include "utils.h"
 
 
-struct TIslandState islandState = { 0, 0, 0, 0, 0, 0 };
+struct TIslandState islandState = { 0, 0, 0, 0, 0, 0, 0, {0,0,0,0,0}, {0,0,0,0,0} };
 
 
 void islandInit(struct TTtmThread *ttmThread)
@@ -56,8 +57,8 @@ void islandInit(struct TTtmThread *ttmThread)
 
     grLoadBmp(ttmSlot, 0, "MRAFT.BMP");
 
-    int xRaft = (islandState.lowTide ? 529 : 512);
-    int yRaft = (islandState.lowTide ? 281 : 266);
+    sint32 xRaft = (islandState.lowTide ? 529 : 512);
+    sint32 yRaft = (islandState.lowTide ? 281 : 266);
 
     switch (islandState.raft) {
         case 1: grDrawSprite(grBackgroundSfc, ttmSlot, xRaft, yRaft, 0, 0); break;  // raft-1
@@ -72,57 +73,43 @@ void islandInit(struct TTtmThread *ttmThread)
 
 
     // Clouds
-
-    int windDirection = rand() % 2;
-    int numClouds;
-    uint16 cloudX, cloudY;
-
+    
     grDx = grDy = 0;
 
-    if (rand() % 2)
-         numClouds = 1;
-    else if (rand() % 2)
-        numClouds = 0;
-    else if (rand() % 4)
-        numClouds = 2;
-    else if (rand() % 4)
-        numClouds = 3;
-    else if (rand() % 4)
-        numClouds = 4;
-    else
-        numClouds = 5;
+    uint16 cloudX, cloudY;
 
-    for (int i=0; i < numClouds; i++) {
+    sint32 numClouds = rand() % 6;
+    sint32 windDirection = rand() % 2;
 
-        int cloudNo = rand() % 3;
+    islandState.clouds.numClouds = numClouds;
+    islandState.clouds.windDirection = windDirection;
 
+    for (sint32 i=0; i < numClouds; i++) {
+        sint32 cloudNo = rand() % 3;
         switch (cloudNo) {
-
             case 0:
                 cloudX = rand() % (640 - 129);
-                cloudY = rand() % (135 - 36 );
+                cloudY = rand() % (100 - 36 ) + 25;
                 break;
 
             case 1:
                 cloudX = rand() % (640 - 192);
-                cloudY = rand() % (135 - 57 );
+                cloudY = rand() % (100 - 57 ) + 25;
                 break;
 
             case 2:
                 cloudX = rand() % (640 - 264);
-                cloudY = rand() % (135 - 76 );
+                cloudY = rand() % (100 - 76 ) + 25;
                 break;
         }
-
-        if (windDirection)
-            grDrawSprite(grBackgroundSfc, ttmSlot, cloudX, cloudY, 15 + cloudNo, 0);
-        else
-            grDrawSpriteFlip(grBackgroundSfc, ttmSlot, cloudX, cloudY, 15 + cloudNo, 0);
+        islandState.clouds.windSpeed[i] = rand() % 2 + 1;
+        islandState.clouds.cloudNo[i] = cloudNo;
+        islandState.clouds.xPos[i] = cloudX;
+        islandState.clouds.yPos[i] = cloudY;
     }
 
     grDx = islandState.xPos;
     grDy = islandState.yPos;
-
 
     // The island itself
 
@@ -136,45 +123,36 @@ void islandInit(struct TTtmThread *ttmThread)
         grDrawSprite(grBackgroundSfc, ttmSlot, 150, 328,  2, 0);  // rock
     }
 
-
     // Initial waves on the shore
-    for (int i=0; i < 4; i++)
+    for (int i=0; i < 4; i++) {
         islandAnimate(ttmThread);
-
+    }
 
     // Waves animation thread
     ttmThread->delay = ttmThread->timer = 8;
 }
 
-
 void islandAnimate(struct TTtmThread *ttmThread)
 {
-    static int counter1 = 0;
-    static int counter2 = 0;
+    static sint32 counter1 = 0;
+    static sint32 counter2 = 0;
 
     struct TTtmSlot *ttmSlot = ttmThread->ttmSlot;
-
 
     grDx = islandState.xPos;
     grDy = islandState.yPos;
 
+    counter2++;
     if (islandState.lowTide) {
-
-        counter2++;
         counter2 %= 4;
-
         switch (counter2) {
             case 0: grDrawSprite(grBackgroundSfc, ttmSlot, 129, 340, 39+counter1, 0); break;  // rock waves (40)
             case 1: grDrawSprite(grBackgroundSfc, ttmSlot, 233, 323, 30+counter1, 0); break;  // low tide waves - left (31)
             case 2: grDrawSprite(grBackgroundSfc, ttmSlot, 367, 356, 33+counter1, 0); break;  // low tide waves - center (33)
             case 3: grDrawSprite(grBackgroundSfc, ttmSlot, 558, 323, 36+counter1, 0); break;  // low tide waves - right (36)
         }
-    }
-    else {
-
-        counter2++;
+    } else {
         counter2 %= 3;
-
         switch (counter2) {
             case 0: grDrawSprite(grBackgroundSfc, ttmSlot, 270, 306, 3+counter1, 0); break;  // high tide waves - left (3)
             case 1: grDrawSprite(grBackgroundSfc, ttmSlot, 364, 319, 6+counter1, 0); break;  // high tide waves - center (6)
@@ -188,13 +166,10 @@ void islandAnimate(struct TTtmThread *ttmThread)
     }
 }
 
-
-void islandInitHoliday(struct TTtmThread *ttmThread)
-{
+void islandInitHoliday(struct TTtmThread *ttmThread) {
     struct TTtmSlot *ttmSlot = ttmThread->ttmSlot;
 
     if (islandState.holiday) {
-
         ttmThread->ttmLayer  = grNewLayer();
         ttmThread->isRunning = 3;
 
@@ -217,3 +192,43 @@ void islandInitHoliday(struct TTtmThread *ttmThread)
     }
 }
 
+void islandAnimateClouds(struct TTtmThread *ttmThread) {
+    struct TTtmSlot *ttmSlot = ttmThread->ttmSlot;
+    if (islandState.clouds.numClouds > 0) {
+        ttmThread->ttmLayer  = grNewLayer();
+        ttmThread->isRunning = 3;
+        grLoadBmp(ttmSlot, 0, "BACKGRND.BMP");
+
+        // animate clouds x position
+        for (sint32 i=0; i < islandState.clouds.numClouds; i++) {
+            sint32 cloudNo = islandState.clouds.cloudNo[i];
+            sint32 cloudX = islandState.clouds.xPos[i];
+            sint32 cloudY = islandState.clouds.yPos[i];
+
+            if (cloudX > 640 + 264) {
+                cloudX = -264;
+            } else if (cloudX < -264) {
+                cloudX = 640 + 264;
+            }
+            else {
+                if (islandState.clouds.windDirection) {
+                    cloudX -= islandState.clouds.windSpeed[i];
+                } else {
+                    cloudX += islandState.clouds.windSpeed[i];
+                }
+            }
+
+            debugMsg("Clouds Pos: %d, %d", cloudX, cloudY);
+            if (islandState.clouds.windDirection) {
+                grDrawSprite(ttmThread->ttmLayer, ttmSlot, cloudX, cloudY, 15 + cloudNo, 0);
+            } else {
+                grDrawSpriteFlip(ttmThread->ttmLayer, ttmSlot, cloudX, cloudY, 15 + cloudNo, 0);
+            }
+
+            islandState.clouds.xPos[i] = cloudX;
+            islandState.clouds.yPos[i] = cloudY;
+        }
+    } else {
+        ttmThread->isRunning = 0;
+    }
+}

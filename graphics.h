@@ -84,7 +84,8 @@ void grRefreshDisplay();
 void grToggleFullScreen();
 void grUpdateDisplay(struct TTtmThread *ttmBackgroundThread,
                      struct TTtmThread *ttmThreads,
-                     struct TTtmThread *ttmHolidayThreads);
+                     struct TTtmThread *ttmHolidayThreads,
+                     struct TTtmThread *ttmCloudThreads);
 
 SDL_Surface *grNewEmptyBackground();
 SDL_Surface *grNewLayer();
