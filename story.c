@@ -244,7 +244,7 @@ void storyPlay()
                 ttmDy = islandState.yPos;
 
                 if (scene->dayNo)
-                    soundPlay(0);
+                    soundPlay(17);
 
                 adsPlay(scene->adsName, scene->adsTagNo);
 
@@ -266,7 +266,7 @@ void storyPlay()
         }
 
         if (finalScene->dayNo)
-            soundPlay(0);
+            soundPlay(17);
 
         adsPlay(finalScene->adsName, finalScene->adsTagNo);
 
