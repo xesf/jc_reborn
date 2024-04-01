@@ -40,12 +40,12 @@ jobs:
             - name: Build
               if: ${{ matrix.os != 'windows-latest' }}
               shell: msys2 {0}
-              run: make
+              run: mingw32-make
 
             - name: Build
               if: ${{ matrix.os == 'windows-latest' }}
               shell: msys2 {0}
-              run: make -f Makefile.MinGW
+              run: mingw32-make -f Makefile.MinGW
 
             - name: Rename
               shell: msys2 {0}
