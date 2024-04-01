@@ -1,4 +1,4 @@
-name: Johnny Castaway Cross-Platform Workflow
+name: 'Johnny Reborn: Johnny Castaway Cross-Platform Workflow'
 on:
     push:
         branches: [master]
@@ -6,93 +6,120 @@ on:
         branches: [master]
 
 jobs:
-    build:
-        strategy:
-            matrix:
-                os: [windows-latest] # ubuntu-latest, macos-latest] #, 
-        name: ${{ matrix.os }} Build
-        runs-on: ${{ matrix.os }}
+    macos:
+      name: MacOS Arm Build
+      runs-on: macos-latest
+      steps:
+          - name: Checkout
+            uses: actions/checkout@v3
+          
+          - name: Install SDL2
+            run: brew install sdl2
+
+          - name: Build
+            run: make
+
+          - name: Rename
+            run: mv jc_reborn jc_reborn_macos_v0${{ github.run_number }}
+
+          - name: Upload Artifact
+            uses: actions/upload-artifact@v2
+            with:
+                name: jc_reborn_macos_v0${{ github.run_number }}
+                path: jc_reborn_macos_v0${{ github.run_number }}
+                retention-days: 1
+
+    linux:
+      name: Linux Build
+      runs-on: ubuntu-latest
+      steps:
+          - name: Checkout
+            uses: actions/checkout@v3
+          
+          - name: Install SDL2
+            run: |
+              sudo apt-get update
+              sudo apt-get install libsdl2-dev
+
+          - name: Build
+            run: make
+
+          - name: Rename
+            run: mv jc_reborn jc_reborn_linux_v0${{ github.run_number }}
+
+          - name: Upload Artifact
+            uses: actions/upload-artifact@v2
+            with:
+                name: jc_reborn_linux_v0${{ github.run_number }}
+                path: jc_reborn_linux_v0${{ github.run_number }}
+                retention-days: 1
+    windows:
+      name: Windows Build
+      runs-on: windows-latest
+      steps:
+          - name: Checkout
+            uses: actions/checkout@v3
+          
+          - name: Install SDL2
+            uses: msys2/setup-msys2@v2
+            with:
+              msystem: mingw32
+              install: >-
+                mingw-w64-i686-cc
+                mingw-w64-i686-make
+                mingw-w64-i686-pkg-config
+                mingw-w64-i686-SDL2
+
+          - name: Build
+            shell: msys2 {0}
+            run: mingw32-make -f Makefile.MinGW
+
+          - name: Rename
+            shell: msys2 {0}
+            run: mv jc_reborn jc_reborn_windows_v0${{ github.run_number }}
+
+          - name: Upload Artifact
+            uses: actions/upload-artifact@v2
+            with:
+                name: jc_reborn_windows_v0${{ github.run_number }}
+                path: jc_reborn_windows_v0${{ github.run_number }}
+                retention-days: 1
+
+    web:
+        name: Web Build
+        runs-on: ubuntu-latest
         steps:
             - name: Checkout
               uses: actions/checkout@v3
             
-            - name: Install SDL2
-              if: ${{ matrix.os == 'macos-latest' }}
-              run: brew install sdl2
-            
-            - name: Install SDL2
-              if: ${{ matrix.os == 'ubuntu-latest' }}
+            - name: Install Emscripten
+              shell: bash
               run: |
-                sudo apt-get update
-                sudo apt-get install libsdl2-dev
-
-            - name: Install SDL2
-              if: ${{ matrix.os == 'windows-latest' }}
-              uses: msys2/setup-msys2@v2
-              with:
-                msystem: mingw32
-                install: >-
-                  mingw-w64-i686-cc
-                  mingw-w64-i686-make
-                  mingw-w64-i686-pkg-config
-                  mingw-w64-i686-SDL2
-
+                cd /tmp && git clone https://github.com/emscripten-core/emsdk && cd emsdk && ./emsdk install latest && ./emsdk activate latest && \
+                bash -c "source emsdk_env.sh" && \
+                echo 'source "/tmp/emsdk/emsdk_env.sh"' >> ~/.bash_profile
+            
             - name: Build
-              if: ${{ matrix.os != 'windows-latest' }}
-              shell: msys2 {0}
-              run: mingw32-make
+              run: | 
+                source ~/.bash_profile && \
+                EMSCRIPTEN=1 emmake make clean && \
+                EMSCRIPTEN=1 emmake make
 
-            - name: Build
-              if: ${{ matrix.os == 'windows-latest' }}
-              shell: msys2 {0}
-              run: mingw32-make -f Makefile.MinGW
-
-            - name: Rename
-              shell: msys2 {0}
-              run: mv jc_reborn jc_reborn_${{ matrix.os }}_v0${{ github.run_number }}
+            - name: Distribution
+              run: tar -czvf jc_reborn_web_v0${{ github.run_number }}.tar.gz jc_reborn.js jc_reborn.wasm index.html favicon.ico
 
             - name: Upload Artifact
               uses: actions/upload-artifact@v2
               with:
-                  name: jc_reborn_${{ matrix.os }}_v0${{ github.run_number }}
-                  path: jc_reborn_${{ matrix.os }}_v0${{ github.run_number }}
+                  name: jc_reborn_web_v0${{ github.run_number }}
+                  path: jc_reborn_web_v0${{ github.run_number }}.tar.gz
                   retention-days: 1
-  
-    # web-build:
-    #     name: Web Build
-    #     runs-on: ubuntu-latest
-    #     steps:
-    #         - name: Checkout
-    #           uses: actions/checkout@v3
-            
-    #         - name: Install Emscripten
-    #           shell: bash
-    #           run: |
-    #             cd /tmp && git clone https://github.com/emscripten-core/emsdk && cd emsdk && ./emsdk install latest && ./emsdk activate latest && \
-    #             bash -c "source emsdk_env.sh" && \
-    #             echo 'source "/tmp/emsdk/emsdk_env.sh"' >> ~/.bash_profile
-            
-    #         - name: Build
-    #           run: | 
-    #             source ~/.bash_profile && \
-    #             EMSCRIPTEN=1 emmake make clean && \
-    #             EMSCRIPTEN=1 emmake make
-
-    #         - name: Distribution
-    #           run: tar -czvf jc_reborn_web_v0${{ github.run_number }}.tar.gz jc_reborn.js jc_reborn.wasm index.html favicon.ico
-
-    #         - name: Upload Artifact
-    #           uses: actions/upload-artifact@v2
-    #           with:
-    #               name: jc_reborn_web_v0${{ github.run_number }}
-    #               path: jc_reborn_web_v0${{ github.run_number }}.tar.gz
-    #               retention-days: 1
 
     release:
         if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
         name: Release
         runs-on: ubuntu-latest
-        needs: [build] # , web-build
+        needs: [macos, linux, windows, web]
         steps:
             - name: Download Artifacts
               uses: actions/download-artifact@v2
@@ -114,35 +141,25 @@ jobs:
                   draft: false
                   prerelease: false
             
-            # - name: Upload Release Artifacts Mac
-            #   uses: actions/upload-release-asset@v1
-            #   env:
-            #       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-            #   with:
-            #       upload_url: ${{ steps.create_release.outputs.upload_url }}
-            #       asset_path: jc_reborn_macos-latest_v0${{ github.run_number }}/jc_reborn_macos-latest_v0${{ github.run_number }}
-            #       asset_name: jc_reborn_macos-latest_v0${{ github.run_number }}
-            #       asset_content_type: application/octet-stream
+            - name: Upload Release Artifacts Mac
+              uses: actions/upload-release-asset@v1
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              with:
+                  upload_url: ${{ steps.create_release.outputs.upload_url }}
+                  asset_path: jc_reborn_macos_v0${{ github.run_number }}/jc_reborn_macos_v0${{ github.run_number }}
+                  asset_name: jc_reborn_macos_v0${{ github.run_number }}
+                  asset_content_type: application/octet-stream
 
-            # - name: Upload Release Artifacts Linux
-            #   uses: actions/upload-release-asset@v1
-            #   env:
-            #       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-            #   with:
-            #       upload_url: ${{ steps.create_release.outputs.upload_url }}
-            #       asset_path: jc_reborn_ubuntu-latest_v0${{ github.run_number }}/jc_reborn_ubuntu-latest_v0${{ github.run_number }}
-            #       asset_name: jc_reborn_ubuntu-latest_v0${{ github.run_number }}
-            #       asset_content_type: application/octet-stream
-
-            # - name: Upload Release Artifacts Web
-            #   uses: actions/upload-release-asset@v1
-            #   env:
-            #       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-            #   with:
-            #       upload_url: ${{ steps.create_release.outputs.upload_url }}
-            #       asset_path: jc_reborn_web_v0${{ github.run_number }}/jc_reborn_web_v0${{ github.run_number }}.tar.gz
-            #       asset_name: jc_reborn_web_v0${{ github.run_number }}.tar.gz
-            #       asset_content_type: application/octet-stream
+            - name: Upload Release Artifacts Linux
+              uses: actions/upload-release-asset@v1
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              with:
+                  upload_url: ${{ steps.create_release.outputs.upload_url }}
+                  asset_path: jc_reborn_ubuntu_v0${{ github.run_number }}/jc_reborn_ubuntu_v0${{ github.run_number }}
+                  asset_name: jc_reborn_ubuntu_v0${{ github.run_number }}
+                  asset_content_type: application/octet-stream
 
             - name: Upload Release Artifacts Windows
               uses: actions/upload-release-asset@v1
@@ -150,6 +167,16 @@ jobs:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               with:
                   upload_url: ${{ steps.create_release.outputs.upload_url }}
-                  asset_path: jc_reborn_windows-latest_v0${{ github.run_number }}/jc_reborn_windows-latest_v0${{ github.run_number }}.exe
-                  asset_name: jc_reborn_windows-latest_v0${{ github.run_number }}.exe
+                  asset_path: jc_reborn_windows_v0${{ github.run_number }}/jc_reborn_windows_v0${{ github.run_number }}.exe
+                  asset_name: jc_reborn_windows_v0${{ github.run_number }}.exe
+                  asset_content_type: application/octet-stream
+    
+            - name: Upload Release Artifacts Web
+              uses: actions/upload-release-asset@v1
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              with:
+                  upload_url: ${{ steps.create_release.outputs.upload_url }}
+                  asset_path: jc_reborn_web_v0${{ github.run_number }}/jc_reborn_web_v0${{ github.run_number }}.tar.gz
+                  asset_name: jc_reborn_web_v0${{ github.run_number }}.tar.gz
                   asset_content_type: application/octet-stream
