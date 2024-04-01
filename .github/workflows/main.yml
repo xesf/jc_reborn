@@ -75,7 +75,8 @@ jobs:
             run: mingw32-make -f Makefile.MinGW
 
           - name: Rename
-            run: rename jc_reborn jc_reborn_windows_v0${{ github.run_number }}
+            shell: cmd
+            run: ren jc_reborn jc_reborn_windows_v0${{ github.run_number }}
 
           - name: Upload Artifact
             uses: actions/upload-artifact@v2
