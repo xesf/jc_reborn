@@ -157,8 +157,8 @@ jobs:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               with:
                   upload_url: ${{ steps.create_release.outputs.upload_url }}
-                  asset_path: jc_reborn_ubuntu_v0${{ github.run_number }}/jc_reborn_ubuntu_v0${{ github.run_number }}
-                  asset_name: jc_reborn_ubuntu_v0${{ github.run_number }}
+                  asset_path: jc_reborn_linux_v0${{ github.run_number }}/jc_reborn_linux_v0${{ github.run_number }}
+                  asset_name: jc_reborn_linux_v0${{ github.run_number }}
                   asset_content_type: application/octet-stream
 
             - name: Upload Release Artifacts Windows
