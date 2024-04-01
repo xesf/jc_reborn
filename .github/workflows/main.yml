@@ -75,8 +75,7 @@ jobs:
             run: mingw32-make -f Makefile.MinGW
 
           - name: Rename
-            shell: msys2 {0}
-            run: mv jc_reborn jc_reborn_windows_v0${{ github.run_number }}
+            run: rename jc_reborn jc_reborn_windows_v0${{ github.run_number }}
 
           - name: Upload Artifact
             uses: actions/upload-artifact@v2
@@ -137,7 +136,7 @@ jobs:
                   release_name: v0.${{ github.run_number }}
                   body: |
                         Changes in this Release
-                        - Build for macOS, Linux and Web
+                        - Build for macOS, Linux, Windows and Web
                   draft: false
                   prerelease: false
             
