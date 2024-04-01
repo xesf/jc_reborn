@@ -76,13 +76,13 @@ jobs:
 
           - name: Rename
             shell: cmd
-            run: ren jc_reborn jc_reborn_windows_v0${{ github.run_number }}
+            run: ren jc_reborn.exe jc_reborn_windows_v0${{ github.run_number }}.exe
 
           - name: Upload Artifact
             uses: actions/upload-artifact@v2
             with:
                 name: jc_reborn_windows_v0${{ github.run_number }}
-                path: jc_reborn_windows_v0${{ github.run_number }}
+                path: jc_reborn_windows_v0${{ github.run_number }}.exe
                 retention-days: 1
 
     web:
