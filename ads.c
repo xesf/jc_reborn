@@ -915,6 +915,10 @@ void adsInitIsland()
     ttmCloudsThread.isRunning = 3;
     ttmCloudsThread.delay     = 8;
     ttmCloudsThread.timer     = 0;
+    if (ttmCloudsThread.ttmLayer) {
+        ttmCloudsThread.ttmLayer = NULL;
+        grFreeLayer(ttmCloudsThread.ttmLayer);
+    }
     ttmCloudsThread.ttmLayer  = grNewLayer();
 
     islandAnimateClouds(&ttmCloudsThread);
@@ -1003,4 +1007,3 @@ void adsPlayWalk(int fromSpot, int fromHdg, int toSpot, int toHdg)
 
     adsStopScene(0);
 }
-
