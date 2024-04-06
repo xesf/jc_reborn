@@ -40,6 +40,6 @@ void benchPlay(struct TTtmThread *ttmThread, int threadNo)
     grClearScreen(ttmThread->ttmLayer);
     grDrawSprite(ttmThread->ttmLayer, ttmThread->ttmSlot, x, 180+25*threadNo, 0, 0);
     x += 5;
-    x %= 640;
+    x %= SCREEN_WIDTH;
 }
 

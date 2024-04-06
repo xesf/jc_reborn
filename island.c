@@ -88,17 +88,17 @@ void islandInit(struct TTtmThread *ttmThread)
         sint32 cloudNo = rand() % 3;
         switch (cloudNo) {
             case 0:
-                cloudX = rand() % (640 - 129);
+                cloudX = rand() % (SCREEN_WIDTH - 129);
                 cloudY = rand() % (100 - 36 ) + 25;
                 break;
 
             case 1:
-                cloudX = rand() % (640 - 192);
+                cloudX = rand() % (SCREEN_WIDTH - 192);
                 cloudY = rand() % (100 - 57 ) + 25;
                 break;
 
             case 2:
-                cloudX = rand() % (640 - 264);
+                cloudX = rand() % (SCREEN_WIDTH - 264);
                 cloudY = rand() % (100 - 76 ) + 25;
                 break;
         }
@@ -205,10 +205,10 @@ void islandAnimateClouds(struct TTtmThread *ttmThread) {
             sint32 cloudX = islandState.clouds.xPos[i];
             sint32 cloudY = islandState.clouds.yPos[i];
 
-            if (cloudX > 640 + 264) {
+            if (cloudX > SCREEN_WIDTH + 264) {
                 cloudX = -264;
             } else if (cloudX < -264) {
-                cloudX = 640 + 264;
+                cloudX = SCREEN_WIDTH + 264;
             }
             else {
                 if (islandState.clouds.windDirection) {

@@ -72,7 +72,7 @@ static void grPutPixel(SDL_Surface *sfc, uint16 x, uint16 y, uint8 color)
     // TODO: Implement Cohen-Sutherland clipping algorithm or such for
     // grDrawLine(), and another ad hoc algorithm for grDrawCircle()
 
-    if (x>=0 && y>=0 && x<640 && y<480) {
+    if (x>=0 && y>=0 && x<SCREEN_WIDTH && y<SCREEN_HEIGHT) {
 
         uint8 *pixel = (uint8*) sfc->pixels;
 
@@ -126,7 +126,7 @@ void graphicsInit()
         (grWindowed ? 0 : SDL_WINDOW_FULLSCREEN)
     );
 #ifdef __EMSCRIPTEN__
-    emscripten_set_canvas_element_size("#canvas", 640, 480);
+    emscripten_set_canvas_element_size("#canvas", SCREEN_WIDTH, SCREEN_HEIGHT);
 #endif
 
     if (sdl_window == NULL)
@@ -232,8 +232,8 @@ void grUpdateDisplay(struct TTtmThread *ttmBackgroundThread,
 
 SDL_Surface *grNewLayer()
 {
-    SDL_Surface *sfc = SDL_CreateRGBSurface(SDL_SWSURFACE, 640, 480, 32, 0, 0, 0, 0);
-    SDL_Rect dest = { 0, 0, 640, 480 };
+    SDL_Surface *sfc = SDL_CreateRGBSurface(SDL_SWSURFACE, SCREEN_WIDTH, SCREEN_HEIGHT, 32, 0, 0, 0, 0);
+    SDL_Rect dest = { 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT };
     SDL_FillRect(sfc, &dest, SDL_MapRGB(sfc->format, 0xa8, 0, 0xa8));
     SDL_SetColorKey(sfc, SDL_TRUE, SDL_MapRGB(sfc->format, 0xa8, 0, 0xa8));
 
@@ -531,8 +531,8 @@ void grLoadScreen(char *strArg)
         fprintf(stderr, "Warning: grLoadScreen(): can't manage odd widths\n");
     }
 
-    if (scrResource->width > 640 || scrResource->height > 480) {
-        fatalError("grLoadScreen(): can't manage more than 640x480 resolutions");
+    if (scrResource->width > SCREEN_WIDTH || scrResource->height > SCREEN_HEIGHT) {
+        fatalError("grLoadScreen(): can't manage more than %dx%d resolutions", SCREEN_WIDTH, SCREEN_HEIGHT);
     }
 
     uint16 width  = scrResource->width;
@@ -549,8 +549,7 @@ void grLoadScreen(char *strArg)
         inPtr++;
     }
 
-    grBackgroundSfc = SDL_CreateRGBSurfaceFrom((void*)outData,
-                                      width, height, 32, 4*width, 0, 0, 0, 0);
+    grBackgroundSfc = SDL_CreateRGBSurfaceFrom((void*)outData, width, height, 32, 4*width, 0, 0, 0, 0);
 }
 
 
@@ -562,10 +561,9 @@ void grInitEmptyBackground()
     if (grSavedZonesLayer != NULL)
         grReleaseSavedLayer();
 
-    uint8 *data = safe_malloc(640 * 480 * sizeof(uint32));
-    memset(data, 0, 640 * 480 * sizeof(uint32));
-    grBackgroundSfc = SDL_CreateRGBSurfaceFrom((void*)data,
-                                      640, 480, 32, 4*640, 0, 0, 0, 0);
+    uint8 *data = safe_malloc(SCREEN_WIDTH * SCREEN_HEIGHT * sizeof(uint32));
+    memset(data, 0, SCREEN_WIDTH * SCREEN_HEIGHT * sizeof(uint32));
+    grBackgroundSfc = SDL_CreateRGBSurfaceFrom((void*)data, SCREEN_WIDTH, SCREEN_HEIGHT, 32, 4*SCREEN_WIDTH, 0, 0, 0, 0);
 }
 
 
@@ -660,8 +658,8 @@ void grFadeOut()
 
         // Left to right
         case 3:
-            for (int i=0; i < 640; i += 40) {
-                grDrawRect(sfc, grScreenOrigin.x + i, grScreenOrigin.y, 40, 480, 5);
+            for (int i=0; i < SCREEN_WIDTH; i += 40) {
+                grDrawRect(sfc, grScreenOrigin.x + i, grScreenOrigin.y, 40, SCREEN_HEIGHT, 5);
                 eventsWaitTick(1);
                 SDL_UpdateWindowSurface(sdl_window);
             }
@@ -670,8 +668,8 @@ void grFadeOut()
         // Middle to left and right
         case 4:
             for (int i=0; i < 320; i += 20) {
-                grDrawRect(sfc, grScreenOrigin.x + 320+i, grScreenOrigin.y, 20, 480, 5);
-                grDrawRect(sfc, grScreenOrigin.x + 300-i, grScreenOrigin.y, 20, 480, 5);
+                grDrawRect(sfc, grScreenOrigin.x + 320+i, grScreenOrigin.y, 20, SCREEN_HEIGHT, 5);
+                grDrawRect(sfc, grScreenOrigin.x + 300-i, grScreenOrigin.y, 20, SCREEN_HEIGHT, 5);
                 eventsWaitTick(1);
                 SDL_UpdateWindowSurface(sdl_window);
             }
