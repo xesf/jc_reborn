@@ -915,6 +915,7 @@ void adsInitIsland()
     ttmCloudsThread.isRunning = 3;
     ttmCloudsThread.delay     = 8;
     ttmCloudsThread.timer     = 0;
+    ttmCloudsThread.ttmLayer  = grNewLayer();
 
     islandAnimateClouds(&ttmCloudsThread);
 }

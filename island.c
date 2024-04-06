@@ -194,8 +194,8 @@ void islandInitHoliday(struct TTtmThread *ttmThread) {
 
 void islandAnimateClouds(struct TTtmThread *ttmThread) {
     struct TTtmSlot *ttmSlot = ttmThread->ttmSlot;
+    grClearScreen(ttmThread->ttmLayer);
     if (islandState.clouds.numClouds > 0) {
-        ttmThread->ttmLayer  = grNewLayer();
         ttmThread->isRunning = 3;
         grLoadBmp(ttmSlot, 0, "BACKGRND.BMP");
 
