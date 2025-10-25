@@ -207,9 +207,9 @@ int main(int argc, char **argv)
         debugMode = 1;
     
     char path[MAX_RESOURCE_PATH] = {0};
-    snprintf(path, sizeof(path)-1, "data");
+    snprintf(path, sizeof(path), "data");
 #ifdef __WIN32__
-	DWORD pathSize = sizeof(path)-1;
+	DWORD pathSize = sizeof(path);
 	RegGetValue(HKEY_LOCAL_MACHINE, "SOFTWARE\\Johnny Reborn", "ResourcePath", RRF_RT_REG_SZ, NULL, path, &pathSize);
 	SetDllDirectory(path);
 #endif

@@ -344,7 +344,7 @@ static void parseMapFile(char *path, char *fileName)
     FILE *f_map; // , *f_res;  // TODO
     char filepath[MAX_RESOURCE_PATH];
 
-    snprintf(filepath, sizeof(filepath)-1, "%s/%s", path, fileName);
+    snprintf(filepath, sizeof(filepath), "%s/%s", path, fileName);
     
     f_map = fopen(filepath,"rb");
 
@@ -378,7 +378,7 @@ static void parseResourceFile(char * path, char * filename)
     FILE *f;
     char filepath[MAX_RESOURCE_PATH];
 
-    snprintf(filepath, sizeof(filepath)-1, "%s/%s", path, mapFile.resFileName);
+    snprintf(filepath, sizeof(filepath), "%s/%s", path, mapFile.resFileName);
 
     f = fopen(filepath,"rb");
 
