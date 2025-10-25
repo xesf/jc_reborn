@@ -339,14 +339,17 @@ static struct TTtmResource *parseTtmResource(FILE *f)
 }
 
 
-static void parseMapFile(char *fileName)
+static void parseMapFile(char *path, char *fileName)
 {
     FILE *f_map; // , *f_res;  // TODO
+    char filepath[MAX_RESOURCE_PATH];
 
-    f_map = fopen(fileName,"rb");
+    snprintf(filepath, sizeof(filepath)-1, "%s/%s", path, fileName);
+	
+    f_map = fopen(filepath,"rb");
 
     if (f_map == NULL)
-        fatalError("Resources map file not found: %s\n", fileName);
+        fatalError("Resources map file not found: %s\n", filepath);
 
     mapFile.unknown1 = readUint8(f_map);   // first 5 uint8s unknown
     mapFile.unknown2 = readUint8(f_map);
@@ -370,12 +373,12 @@ static void parseMapFile(char *fileName)
 }
 
 
-static void parseResourceFile(char * filename)
+static void parseResourceFile(char * path, char * filename)
 {
     FILE *f;
-    char filepath[256];
+    char filepath[MAX_RESOURCE_PATH];
 
-    sprintf(filepath, "data/%s", mapFile.resFileName);
+    snprintf(filepath, sizeof(filepath)-1, "%s/%s", path, mapFile.resFileName);
 
     f = fopen(filepath,"rb");
 
@@ -439,10 +442,10 @@ static void parseResourceFile(char * filename)
 }
 
 
-void parseResourceFiles(char * filename)
+void parseResourceFiles(char * path, char * filename)
 {
-    parseMapFile(filename);
-    parseResourceFile(filename);
+    parseMapFile(path, filename);
+    parseResourceFile(path, filename);
 }
 
 

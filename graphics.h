@@ -23,6 +23,11 @@
 
 #include <SDL2/SDL.h>
 
+#ifdef __WIN32__
+#include <SDL2/SDL_syswm.h>
+#include <windows.h>
+#endif
+
 #define SCREEN_WIDTH        640
 #define SCREEN_HEIGHT       480
 
@@ -112,3 +117,6 @@ void grFadeOut();
 void grLoadPalette();   // TODO
 void grLoadScreen(char *strArg);
 
+#ifdef __WIN32__
+extern HWND scrHwnd;
+#endif
