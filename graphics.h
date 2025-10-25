@@ -116,7 +116,3 @@ void grFadeOut();
 
 void grLoadPalette();   // TODO
 void grLoadScreen(char *strArg);
-
-#ifdef __WIN32__
-extern HWND scrHwnd;
-#endif

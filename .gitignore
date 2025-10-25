@@ -16,3 +16,4 @@ sound*.wav
 *.wasm
 build/
 .vscode/c_cpp_properties.json
+.jc_reborn

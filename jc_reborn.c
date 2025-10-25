@@ -110,7 +110,6 @@ static void scrConfig()
 #endif
 
 
-
 static void parseArgs(int argc, char **argv)
 {
     int numExpectedArgs = 0;

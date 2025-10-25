@@ -345,7 +345,7 @@ static void parseMapFile(char *path, char *fileName)
     char filepath[MAX_RESOURCE_PATH];
 
     snprintf(filepath, sizeof(filepath)-1, "%s/%s", path, fileName);
-	
+    
     f_map = fopen(filepath,"rb");
 
     if (f_map == NULL)

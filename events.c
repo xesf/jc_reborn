@@ -46,8 +46,8 @@ int evMouseQuitEnabled = 0;
 static void eventsProcessEvents()
 {
     SDL_Event event;
-	int mouseX, mouseY;
-	SDL_GetMouseState(&mouseX, &mouseY);
+    int mouseX, mouseY;
+    SDL_GetMouseState(&mouseX, &mouseY);
 
     while (SDL_PollEvent(&event)) {
 
@@ -78,25 +78,25 @@ static void eventsProcessEvents()
                             break;
 
                         case SDLK_ESCAPE:
-							quit = 1;
+                            quit = 1;
                             break;
                     }
                 }
                 else {
-					quit = 1;
                     // Normal behaviour : no hot keys, the screen saver
                     // terminates if any key is pressed
+                    quit = 1;
                 }
                 break;
 
             case SDL_MOUSEMOTION:
-				if (evMouseQuitEnabled && (abs(event.motion.x - mouseX) || abs(event.motion.y - mouseY)))
-					quit = 1;
+                if (evMouseQuitEnabled && (abs(event.motion.x - mouseX) || abs(event.motion.y - mouseY)))
+                    quit = 1;
                 break;
-				
+                
             case SDL_MOUSEBUTTONDOWN:
-				if (evMouseQuitEnabled) 
-					quit = 1;
+                if (evMouseQuitEnabled) 
+                    quit = 1;
                 break;
 
             case SDL_WINDOWEVENT:
@@ -104,19 +104,19 @@ static void eventsProcessEvents()
                 break;
 
             case SDL_QUIT:
-				quit = 1;
+                quit = 1;
                 break;
         }
-		
-		if (quit) {
-			graphicsEnd();
+        
+        if (quit) {
+            graphicsEnd();
 #ifdef __EMSCRIPTEN__
-			emscripten_force_exit(255);
+            emscripten_force_exit(255);
 #else
-			exit(255);
+            exit(255);
 #endif
-		}
-		
+        }
+        
     }
 }
 
