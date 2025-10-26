@@ -45,21 +45,19 @@ static char *cfgFullPath()
     if (result[0] == '\0') {
 
 #ifdef __WIN32__
-        home = getenv("APPDATA");
-		char dir[128] = {0};
-		snprintf(dir, sizeof(dir), "%s/Johnny Reborn", home);
-		if (home != NULL && strlen(home) && (CreateDirectoryA(dir, NULL) || GetLastError() == ERROR_ALREADY_EXISTS)) {
-			snprintf(result, sizeof(result), "%s/%s", dir, CFG_FILENAME);
-		}
+        home = getenv("ProgramData");
+        if (home != NULL && strlen(home) && testFile(home, PROG_DIR)) {
+            snprintf(result, sizeof(result), "%s/%s/%s", home, PROG_DIR, CFG_FILENAME);
+        }
 #else
         home = getenv("HOME");
         if (home != NULL && strlen(home)) {
-			snprintf(result, sizeof(result), "%s/%s", home, CFG_FILENAME);
+            snprintf(result, sizeof(result), "%s/%s", home, CFG_FILENAME);
         }
 #endif
 
         if (result[0] == '\0') {
-			snprintf(result, sizeof(result), "%s", CFG_FILENAME);
+            snprintf(result, sizeof(result), "%s", CFG_FILENAME);
         }
 
     }

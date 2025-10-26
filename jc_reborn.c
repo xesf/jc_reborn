@@ -114,14 +114,6 @@ static void parseArgs(int argc, char **argv)
 {
     int numExpectedArgs = 0;
 
-#ifdef __WIN32__
-    if (AttachConsole(ATTACH_PARENT_PROCESS)) {
-        FILE* f;
-        freopen_s(&f, "CONOUT$", "w", stdout);
-        freopen_s(&f, "CONOUT$", "w", stderr);
-    }
-#endif
-    
     for (int i=1; i < argc; i++) {
 
         if (numExpectedArgs) {
@@ -198,9 +190,17 @@ static void parseArgs(int argc, char **argv)
 
 }
 
-
 int main(int argc, char **argv)
 {
+    
+#ifdef __WIN32__
+    if (AttachConsole(ATTACH_PARENT_PROCESS)) {
+        FILE* f;
+        freopen_s(&f, "CONOUT$", "w", stdout);
+        freopen_s(&f, "CONOUT$", "w", stderr);
+    }
+#endif
+    
     parseArgs(argc, argv);
 
     if (argDump)
@@ -208,11 +208,14 @@ int main(int argc, char **argv)
     
     char path[MAX_RESOURCE_PATH] = {0};
     snprintf(path, sizeof(path), "data");
+    
 #ifdef __WIN32__
-	DWORD pathSize = sizeof(path);
-	RegGetValue(HKEY_LOCAL_MACHINE, "SOFTWARE\\Johnny Reborn", "ResourcePath", RRF_RT_REG_SZ, NULL, path, &pathSize);
-	SetDllDirectory(path);
+    char *programData = getenv("ProgramData");
+    if (programData != NULL && strlen(programData) && testFile(programData, PROG_DIR "/RESOURCE.MAP")) {
+        snprintf(path, sizeof(path), "%s/%s", programData, PROG_DIR);
+    }
 #endif
+
     parseResourceFiles(path, "RESOURCE.MAP");
 
     if (argPlayAll) {

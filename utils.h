@@ -43,4 +43,4 @@ void   hexdump(uint8 *data, uint32 len);
 int    getDayOfYear();
 int    getHour();
 char   *getMonthAndDay();
-
+int    testFile(char *path, char *filename);

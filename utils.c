@@ -27,6 +27,7 @@
 #include <stdarg.h>
 #include <time.h>
 #include <sys/time.h>
+#include <unistd.h>
 
 #include "mytypes.h"
 
@@ -226,3 +227,8 @@ char *getMonthAndDay()
     return result;
 }
 
+int testFile(char *path, char *filename) {
+    char fullname[BUF_LEN] = {0};
+    snprintf(fullname, sizeof(fullname), "%s/%s", path, filename);
+    return access(fullname, F_OK) == 0;
+}
