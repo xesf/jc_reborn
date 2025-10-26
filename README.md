@@ -44,15 +44,11 @@ But, if you're curious about how the engine works, you may type `jc_reborn help`
 
 ## How to run as a screen saver under Windows
 
-Assuming 64-bit windows and 32-bit binaries. 
+Put data files to `C:\ProgramData\Johnny Reborn` (see How to install). 
 
-Put data files to `C:\Program Files (x86)\Johnny Reborn` (see How to install). 
+Put `jc_reborn.exe` to `C:\Windows\System32\Johnny Reborn.scr`.
 
-Import `jc_reborn_x64.reg` to your registry as an admin (this will create registry key pointing screen saver to data files you just copied over).
-
-Copy `jc_reborn.exe` to `C:\Windows\System32\Johnny Reborn.scr`.
-
-Ensure SDL2.dll can be found from the path (get one and put it to C:\Windows if missing).
+Ensure SDL2.dll can be found from the path.
 
 Go to Screen Saver Settings and Johnny Reborn should be there.
 
