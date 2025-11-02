@@ -109,13 +109,6 @@ static void eventsProcessEvents()
         }
         
         if (quit) {
-			#ifdef __WIN32__
-			/*
-			if (evMouseQuitEnabled) {
-				LockWorkStation();
-			}
-			*/
-			#endif
             graphicsEnd();
 #ifdef __EMSCRIPTEN__
             emscripten_force_exit(255);

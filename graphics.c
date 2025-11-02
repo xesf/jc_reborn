@@ -138,6 +138,9 @@ void graphicsInit()
         SCREEN_HEIGHT,
         sdl_flags
     );
+    if (sdl_window == NULL)
+        fatalError("Could not create window: %s", SDL_GetError());
+
 #ifdef USE_SDL_RENDERER
 	sdl_renderer = SDL_CreateRenderer(sdl_window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 	SDL_RenderSetLogicalSize(sdl_renderer, SCREEN_WIDTH, SCREEN_HEIGHT);
@@ -150,9 +153,6 @@ void graphicsInit()
 #ifdef __EMSCRIPTEN__
     emscripten_set_canvas_element_size("#canvas", 640, 480);
 #endif
-
-    if (sdl_window == NULL)
-        fatalError("Could not create window: %s", SDL_GetError());
 
     grScreenOrigin.x = (SCREEN_WIDTH - 640) / 2;
     grScreenOrigin.y = (SCREEN_HEIGHT - 480) / 2;
