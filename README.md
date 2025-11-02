@@ -48,7 +48,7 @@ Put data files to `C:\ProgramData\Johnny Reborn` (see How to install).
 
 Put `jc_reborn.exe` to `C:\Windows\System32\Johnny Reborn.scr`.
 
-Ensure SDL2.dll can be found from the path.
+Ensure SDL2.dll can be found from the path e.g. put 32-bit SDL2.dll into C:\Windows\SysWOW64 for 32-bit Johnny Reborn or 64-bit SDL2.dll into C:\Windows\System for 64-bit Johnny Reborn.
 
 Go to Screen Saver Settings and Johnny Reborn should be there. Note that preview does not work on purpose as it would require further modifications on blitting code...
 
