@@ -36,7 +36,13 @@
 #include "events.h"
 
 
+static SDL_WindowFlags sdl_flags = 0;
 static SDL_Window *sdl_window;
+#ifdef USE_SDL_RENDERER
+static SDL_Renderer* sdl_renderer;
+static SDL_Texture* sdl_texture;
+#endif
+static SDL_Surface* sdl_surface;
 
 static uint8 ttmPalette[16][4];
 
@@ -116,6 +122,13 @@ void grLoadPalette(struct TPalResource *palResource)
 void graphicsInit()
 {
     SDL_Init(SDL_INIT_VIDEO);
+	
+#ifdef USE_SDL_RENDERER
+	if (!grWindowed) sdl_flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
+	sdl_flags |= SDL_WINDOW_RESIZABLE;
+#else
+	if (!grWindowed) sdl_flags |= SDL_WINDOW_FULLSCREEN;
+#endif
 
     sdl_window = SDL_CreateWindow(
         "Johnny Reborn ...?",
@@ -123,8 +136,17 @@ void graphicsInit()
         SDL_WINDOWPOS_UNDEFINED,
         SCREEN_WIDTH,
         SCREEN_HEIGHT,
-        (grWindowed ? 0 : SDL_WINDOW_FULLSCREEN)
+        sdl_flags
     );
+#ifdef USE_SDL_RENDERER
+	sdl_renderer = SDL_CreateRenderer(sdl_window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+	SDL_RenderSetLogicalSize(sdl_renderer, SCREEN_WIDTH, SCREEN_HEIGHT);
+	SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1"); 
+    sdl_surface = SDL_CreateRGBSurface(0, SCREEN_WIDTH, SCREEN_HEIGHT, 32, 0x00FF0000, 0x0000FF00, 0x000000FF, 0xFF000000);
+    sdl_texture = SDL_CreateTexture(sdl_renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, SCREEN_WIDTH, SCREEN_HEIGHT);
+#else
+    sdl_surface = SDL_GetWindowSurface(sdl_window);
+#endif
 #ifdef __EMSCRIPTEN__
     emscripten_set_canvas_element_size("#canvas", 640, 480);
 #endif
@@ -138,7 +160,7 @@ void graphicsInit()
     if (!grWindowed)
         SDL_ShowCursor(SDL_DISABLE);
 
-    SDL_UpdateWindowSurface(sdl_window);
+    grRefreshDisplay();
 
     grLoadPalette(palResources[0]);  // TODO ?
 
@@ -157,7 +179,14 @@ void graphicsEnd()
 
 void grRefreshDisplay()
 {
+#ifdef USE_SDL_RENDERER
+	SDL_UpdateTexture(sdl_texture, NULL, sdl_surface->pixels, sdl_surface->pitch);
+	SDL_RenderClear(sdl_renderer);
+	SDL_RenderCopy(sdl_renderer, sdl_texture, NULL, NULL);
+	SDL_RenderPresent(sdl_renderer);	
+#else	
     SDL_UpdateWindowSurface(sdl_window);
+#endif
 }
 
 
@@ -170,11 +199,15 @@ void grToggleFullScreen()
         SDL_ShowCursor(SDL_ENABLE);
     }
     else {
+#ifdef USE_SDL_RENDERER
+        SDL_SetWindowFullscreen(sdl_window, SDL_WINDOW_FULLSCREEN_DESKTOP);
+#else
         SDL_SetWindowFullscreen(sdl_window, SDL_WINDOW_FULLSCREEN);
+#endif
         SDL_ShowCursor(SDL_DISABLE);
     }
 
-    SDL_UpdateWindowSurface(sdl_window);
+    grRefreshDisplay();
 }
 
 
@@ -183,11 +216,12 @@ void grUpdateDisplay(struct TTtmThread *ttmBackgroundThread,
                      struct TTtmThread *ttmHolidayThread,
                      struct TTtmThread *ttmCloudsThread)
 {
+	
     // Blit the background
     if (grBackgroundSfc != NULL)
         SDL_BlitSurface(grBackgroundSfc,
                         NULL,
-                        SDL_GetWindowSurface(sdl_window),
+                        sdl_surface,
                         &grScreenOrigin);
 
     // Blit the Clouds
@@ -195,14 +229,14 @@ void grUpdateDisplay(struct TTtmThread *ttmBackgroundThread,
         if (ttmCloudsThread->isRunning)
             SDL_BlitSurface(ttmCloudsThread->ttmLayer,
                             NULL,
-                            SDL_GetWindowSurface(sdl_window),
+                            sdl_surface,
                             &grScreenOrigin);
 
     // If not NULL, blit the optional layer of saved zones
     if (grSavedZonesLayer != NULL)
         SDL_BlitSurface(grSavedZonesLayer,
                         NULL,
-                        SDL_GetWindowSurface(sdl_window),
+                        sdl_surface,
                         &grScreenOrigin);
 
 
@@ -211,7 +245,7 @@ void grUpdateDisplay(struct TTtmThread *ttmBackgroundThread,
         if (ttmThreads[i].isRunning)
             SDL_BlitSurface(ttmThreads[i].ttmLayer,
                             NULL,
-                            SDL_GetWindowSurface(sdl_window),
+                            sdl_surface,
                             &grScreenOrigin);
 
     // Finally, blit the holiday layer
@@ -219,14 +253,15 @@ void grUpdateDisplay(struct TTtmThread *ttmBackgroundThread,
         if (ttmHolidayThread->isRunning)
             SDL_BlitSurface(ttmHolidayThread->ttmLayer,
                             NULL,
-                            SDL_GetWindowSurface(sdl_window),
+                            sdl_surface,
                             &grScreenOrigin);
 
     // Wait for the tick ...
     eventsWaitTick(grUpdateDelay);
 
     // ... and refresh the display
-    SDL_UpdateWindowSurface(sdl_window);
+    grRefreshDisplay();
+
 }
 
 
@@ -636,7 +671,7 @@ void grFadeOut()
                     radius << 1, radius << 1, 5, 5);
                 SDL_BlitSurface(tmpSfc, NULL, sfc, &grScreenOrigin);
                 eventsWaitTick(1);
-                SDL_UpdateWindowSurface(sdl_window);
+                grRefreshDisplay();
             }
             break;
 
@@ -645,7 +680,7 @@ void grFadeOut()
             for (int i=1; i <= 20; i++) {
                 grDrawRect(sfc, grScreenOrigin.x + 320 - i*16, grScreenOrigin.y + 240 - i*12, i*32, i*24, 5);
                 eventsWaitTick(1);
-                SDL_UpdateWindowSurface(sdl_window);
+                grRefreshDisplay();
             }
             break;
 
@@ -654,7 +689,7 @@ void grFadeOut()
             for (int i=600; i >= 0; i -= 40) {
                 grDrawRect(sfc, grScreenOrigin.x + i, grScreenOrigin.y, 40, 480, 5);
                 eventsWaitTick(1);
-                SDL_UpdateWindowSurface(sdl_window);
+                grRefreshDisplay();
             }
             break;
 
@@ -663,7 +698,7 @@ void grFadeOut()
             for (int i=0; i < 640; i += 40) {
                 grDrawRect(sfc, grScreenOrigin.x + i, grScreenOrigin.y, 40, 480, 5);
                 eventsWaitTick(1);
-                SDL_UpdateWindowSurface(sdl_window);
+                grRefreshDisplay();
             }
             break;
 
@@ -673,7 +708,7 @@ void grFadeOut()
                 grDrawRect(sfc, grScreenOrigin.x + 320+i, grScreenOrigin.y, 20, 480, 5);
                 grDrawRect(sfc, grScreenOrigin.x + 300-i, grScreenOrigin.y, 20, 480, 5);
                 eventsWaitTick(1);
-                SDL_UpdateWindowSurface(sdl_window);
+                grRefreshDisplay();
             }
             break;
     }

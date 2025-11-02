@@ -35,6 +35,7 @@
 #define MAX_SPRITES_PER_BMP 120
 #define MAX_TTM_SLOTS       10
 #define MAX_TTM_THREADS     10
+#define USE_SDL_RENDERER
 
 
 struct TAdsScene {

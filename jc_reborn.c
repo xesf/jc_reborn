@@ -157,7 +157,7 @@ static void parseArgs(int argc, char **argv)
                 evHotKeysEnabled = 1;
             }
 #ifdef __WIN32__
-            else if (!strnicmp(argv[i], "/c:", 3)) {
+            else if (!strnicmp(argv[i], "/c", 2)) {
                 argScrConfig = 1;
             }
             else if (!strnicmp(argv[i], "/p", 2)) {
