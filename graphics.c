@@ -142,7 +142,7 @@ void graphicsInit()
         fatalError("Could not create window: %s", SDL_GetError());
 
 #ifdef USE_SDL_RENDERER
-	sdl_renderer = SDL_CreateRenderer(sdl_window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+	sdl_renderer = SDL_CreateRenderer(sdl_window, -1, 0);
 	SDL_RenderSetLogicalSize(sdl_renderer, SCREEN_WIDTH, SCREEN_HEIGHT);
 	SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1"); 
     sdl_surface = SDL_CreateRGBSurface(0, SCREEN_WIDTH, SCREEN_HEIGHT, 32, 0x00FF0000, 0x0000FF00, 0x000000FF, 0xFF000000);
