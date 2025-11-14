@@ -143,13 +143,23 @@ void graphicsInit()
 
 #ifdef USE_SDL_RENDERER
 	sdl_renderer = SDL_CreateRenderer(sdl_window, -1, 0);
+    if (sdl_renderer == NULL)
+        fatalError("Could not create renderer: %s", SDL_GetError());
 	SDL_RenderSetLogicalSize(sdl_renderer, SCREEN_WIDTH, SCREEN_HEIGHT);
 	SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1"); 
-    sdl_surface = SDL_CreateRGBSurface(0, SCREEN_WIDTH, SCREEN_HEIGHT, 32, 0x00FF0000, 0x0000FF00, 0x000000FF, 0xFF000000);
     sdl_texture = SDL_CreateTexture(sdl_renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, SCREEN_WIDTH, SCREEN_HEIGHT);
+    if (sdl_texture == NULL)
+        fatalError("Could not create texture: %s", SDL_GetError());
+    sdl_surface = SDL_CreateRGBSurface(0, SCREEN_WIDTH, SCREEN_HEIGHT, 32, 0x00FF0000, 0x0000FF00, 0x000000FF, 0xFF000000);
 #else
     sdl_surface = SDL_GetWindowSurface(sdl_window);
 #endif
+    if (sdl_surface == NULL)
+        fatalError("Could not create surface: %s", SDL_GetError());
+	
+	if (evScreensaverEnabled)
+		SDL_EnableScreenSaver();
+
 #ifdef __EMSCRIPTEN__
     emscripten_set_canvas_element_size("#canvas", 640, 480);
 #endif

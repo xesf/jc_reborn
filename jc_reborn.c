@@ -165,7 +165,7 @@ static void parseArgs(int argc, char **argv)
                 numExpectedArgs = 1;
             }
             else if (!strnicmp(argv[i], "/s", 2)) {
-                evMouseQuitEnabled = 1;
+                evScreensaverEnabled = 1;
             }
 #endif
         }

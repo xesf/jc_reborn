@@ -22,7 +22,7 @@
  */
 
 extern int evHotKeysEnabled;
-extern int evMouseQuitEnabled;
+extern int evScreensaverEnabled;
 
 void eventsInit();
 void eventsWaitTick(uint16 delay);

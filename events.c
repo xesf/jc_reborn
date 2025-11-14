@@ -40,7 +40,7 @@ static int oneFrame = 0;
 static int quit = 0;
 
 int evHotKeysEnabled = 0;
-int evMouseQuitEnabled = 0;
+int evScreensaverEnabled = 0;
 
 
 static void eventsProcessEvents()
@@ -90,12 +90,12 @@ static void eventsProcessEvents()
                 break;
 
             case SDL_MOUSEMOTION:
-                if (evMouseQuitEnabled && (abs(event.motion.x - mouseX) || abs(event.motion.y - mouseY)))
+                if (evScreensaverEnabled && (abs(event.motion.x - mouseX) || abs(event.motion.y - mouseY)))
                     quit = 1;
                 break;
                 
             case SDL_MOUSEBUTTONDOWN:
-                if (evMouseQuitEnabled) 
+                if (evScreensaverEnabled) 
                     quit = 1;
                 break;
 
