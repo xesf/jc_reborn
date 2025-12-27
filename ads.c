@@ -24,7 +24,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
-#include <SDL2/SDL.h>
+#include "platform.h"
 
 #include "mytypes.h"
 #include "utils.h"
@@ -848,10 +848,10 @@ void adsPlayBench()  // TODO - tempo
         for (int i=0; i < MAX_TTM_THREADS; i++)
             ttmThreads[i].isRunning = (i<numLayers ? 1 : 0);
 
-        startTicks = SDL_GetTicks();
+        startTicks = platformGetTicks();
         counter = 0;
 
-        while ((SDL_GetTicks() - startTicks) <= 3000) {
+        while ((platformGetTicks() - startTicks) <= 3000) {
 
             for (int i=0; i < numLayers; i++)
                 benchPlay(&ttmThreads[i], i);

@@ -196,9 +196,11 @@ int getDayOfYear()
 {
     struct timeval tv;
     struct tm *localTime;
+    time_t t;
 
     gettimeofday(&tv, NULL);
-    localTime = localtime(&tv.tv_sec);
+    t = (time_t)tv.tv_sec;
+    localTime = localtime(&t);
     return localTime->tm_yday;
 }
 
@@ -207,9 +209,11 @@ int getHour()
 {
     struct timeval tv;
     struct tm *localTime;
+    time_t t;
 
     gettimeofday(&tv, NULL);
-    localTime = localtime(&tv.tv_sec);
+    t = (time_t)tv.tv_sec;
+    localTime = localtime(&t);
     return localTime->tm_hour;
 }
 
@@ -219,9 +223,11 @@ char *getMonthAndDay()
     struct timeval tv;
     struct tm *localTime;
     static char result[5];
+    time_t t;
 
     gettimeofday(&tv, NULL);
-    localTime = localtime(&tv.tv_sec);
+    t = (time_t)tv.tv_sec;
+    localTime = localtime(&t);
     strftime(result, 5, "%m%d", localTime);
     return result;
 }

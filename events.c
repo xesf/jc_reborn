@@ -24,10 +24,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#include <SDL2/SDL.h>
-#ifdef __EMSCRIPTEN__
-#include <emscripten.h>
-#endif
+#include "platform.h"
 #include "mytypes.h"
 #include "graphics.h"
 #include "events.h"
@@ -43,28 +40,28 @@ int evHotKeysEnabled = 0;
 
 static void eventsProcessEvents()
 {
-    SDL_Event event;
+    PlatformEvent event;
 
-    while (SDL_PollEvent(&event)) {
+    while (platformPollEvent(&event)) {
 
         switch(event.type) {
 
-            case SDL_KEYDOWN:
+            case EVENT_KEY_DOWN:
 
                 if (evHotKeysEnabled) {
 
-                    switch (event.key.keysym.sym) {
+                    switch (event.data.key.keycode) {
 
-                        case SDLK_SPACE:
+                        case KEY_SPACE:
                             paused = !paused;
                             break;
 
-                        case SDLK_m:
+                        case KEY_M:
                             maxSpeed = !maxSpeed;
                             break;
 
-                        case SDLK_RETURN:
-                            if (event.key.keysym.mod & KMOD_LALT) {
+                        case KEY_RETURN:
+                            if (event.data.key.modifiers & KEYMOD_LALT) {
                                 grToggleFullScreen();
                                 oneFrame = 1;   // to redraw the window // TODO
                             }
@@ -73,13 +70,12 @@ static void eventsProcessEvents()
                             }
                             break;
 
-                        case SDLK_ESCAPE:
+                        case KEY_ESCAPE:
                             graphicsEnd();
-#ifdef __EMSCRIPTEN__
-                            emscripten_force_exit(255);
-#else
                             exit(255);
-#endif
+                            break;
+                        
+                        default:
                             break;
                     }
                 }
@@ -87,25 +83,20 @@ static void eventsProcessEvents()
                     // Normal behaviour : no hot keys, the screen saver
                     // terminates if any key is pressed
                     graphicsEnd();
-#ifdef __EMSCRIPTEN__
-                    emscripten_force_exit(255);
-#else
                     exit(255);
-#endif
                 }
                 break;
 
-            case SDL_WINDOWEVENT:
+            case EVENT_WINDOW_REFRESH:
                 grRefreshDisplay();
                 break;
 
-            case SDL_QUIT:
+            case EVENT_QUIT:
                 graphicsEnd();
-#ifdef __EMSCRIPTEN__
-                emscripten_force_exit(255);
-#else
                 exit(255);
-#endif
+                break;
+            
+            default:
                 break;
         }
     }
@@ -114,7 +105,7 @@ static void eventsProcessEvents()
 
 void eventsInit()
 {
-    lastTicks = SDL_GetTicks();
+    lastTicks = platformGetTicks();
 }
 
 
@@ -126,15 +117,10 @@ void eventsWaitTick(uint16 delay)
     eventsProcessEvents();
 
     while ((paused && !oneFrame)
-            || (!maxSpeed && (SDL_GetTicks() - lastTicks < delay))) {
-#ifdef __EMSCRIPTEN__
-        emscripten_sleep(5);
-#else
-        SDL_Delay(5);
-#endif
+            || (!maxSpeed && (platformGetTicks() - lastTicks < delay))) {
+        platformDelay(5);
         eventsProcessEvents();
     }
 
-    lastTicks = SDL_GetTicks();
+    lastTicks = platformGetTicks();
 }
-
