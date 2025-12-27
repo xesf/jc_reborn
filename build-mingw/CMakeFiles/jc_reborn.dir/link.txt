@@ -1,3 +1,0 @@
-/usr/local/Cellar/cmake/3.26.1/bin/cmake -E rm -f CMakeFiles/jc_reborn.dir/objects.a
-/usr/local/bin/x86_64-w64-mingw32-ar qc CMakeFiles/jc_reborn.dir/objects.a @CMakeFiles/jc_reborn.dir/objects1.rsp
-/usr/local/bin/x86_64-w64-mingw32-gcc  -Wall -Wpedantic  -static-libgcc -Wl,--whole-archive CMakeFiles/jc_reborn.dir/objects.a -Wl,--no-whole-archive -o jc_reborn.exe -Wl,--out-implib,libjc_reborn.dll.a -Wl,--major-image-version,0,--minor-image-version,0 @CMakeFiles/jc_reborn.dir/linkLibs.rsp

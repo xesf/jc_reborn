@@ -15,4 +15,5 @@ sound*.wav
 *.js
 *.wasm
 build/
+build*/
 .vscode/c_cpp_properties.json
