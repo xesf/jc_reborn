@@ -1,5 +1,7 @@
 name: 'Johnny Reborn: Johnny Castaway Cross-Platform Workflow (CMake)'
 on:
+    push:
+        branches: [master]
     pull_request:
         branches: [master]
 
