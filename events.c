@@ -103,7 +103,7 @@ static void eventsProcessEvents()
 }
 
 
-void eventsInit()
+void eventsInit(void)
 {
     lastTicks = platformGetTicks();
 }

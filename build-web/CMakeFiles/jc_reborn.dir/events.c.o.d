@@ -19,4 +19,5 @@ CMakeFiles/jc_reborn.dir/events.c.o: \
   /Users/xesf/Documents/workaround/github/jc_reborn-xesf/platform.h \
   /Users/xesf/Documents/workaround/github/jc_reborn-xesf/mytypes.h \
   /Users/xesf/Documents/workaround/github/jc_reborn-xesf/graphics.h \
+  /Users/xesf/Documents/workaround/github/jc_reborn-xesf/resource.h \
   /Users/xesf/Documents/workaround/github/jc_reborn-xesf/events.h

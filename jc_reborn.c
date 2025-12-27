@@ -48,7 +48,7 @@ static char *args[3];
 static int  numArgs  = 0;
 
 
-static void usage()
+static void usage(void)
 {
         printf("\n");
         printf(" Usage :\n");
@@ -78,7 +78,7 @@ static void usage()
 }
 
 
-static void version()
+static void version(void)
 {
         printf("\n");
         printf("    Johnny Reborn, an open-source engine for\n");

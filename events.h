@@ -23,6 +23,6 @@
 
 extern int evHotKeysEnabled;
 
-void eventsInit();
+void eventsInit(void);
 void eventsWaitTick(uint16 delay);
 

@@ -64,7 +64,7 @@ static void soundCallback(void *userdata, uint8 *stream, int rqdLen)
 }
 
 
-void soundInit()
+void soundInit(void)
 {
     if (soundDisabled)
         return;

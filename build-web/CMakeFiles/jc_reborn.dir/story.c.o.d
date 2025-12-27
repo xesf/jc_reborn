@@ -30,6 +30,7 @@ CMakeFiles/jc_reborn.dir/story.c.o: \
   /Users/xesf/Documents/workaround/github/emsdk/upstream/lib/clang/19/include/__stdarg_va_copy.h \
   /Users/xesf/Documents/workaround/github/jc_reborn-xesf/graphics.h \
   /Users/xesf/Documents/workaround/github/jc_reborn-xesf/platform.h \
+  /Users/xesf/Documents/workaround/github/jc_reborn-xesf/resource.h \
   /Users/xesf/Documents/workaround/github/jc_reborn-xesf/sound.h \
   /Users/xesf/Documents/workaround/github/jc_reborn-xesf/ttm.h \
   /Users/xesf/Documents/workaround/github/jc_reborn-xesf/ads.h \

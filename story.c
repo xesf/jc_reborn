@@ -191,7 +191,7 @@ static void storyCalculateIslandFromScene(struct TStoryScene *scene)
 }
 
 
-void storyPlay()
+void storyPlay(void)
 {
     uint16 wantedFlags   = 0;
     uint16 unwantedFlags = 0;

@@ -110,9 +110,13 @@ void platformDestroyWindow(PlatformWindow* window) {
 
 void platformShowCursor(int show) {
     if (show) {
-        emscripten_set_element_css_property("#canvas", "cursor", "default");
+        EM_ASM(
+            document.getElementById('canvas').style.cursor = 'default';
+        );
     } else {
-        emscripten_set_element_css_property("#canvas", "cursor", "none");
+        EM_ASM(
+            document.getElementById('canvas').style.cursor = 'none';
+        );
     }
 }
 

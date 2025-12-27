@@ -1,9 +1,7 @@
 name: 'Johnny Reborn: Johnny Castaway Cross-Platform Workflow (CMake)'
 on:
-    push:
-        branches: [master, feat/no-sddl]
     pull_request:
-        branches: [master, feat/no-sddl]
+        branches: [master]
 
 jobs:
     macos:

@@ -49,7 +49,7 @@ int grWindowed = 0;
 int grUpdateDelay = 0;
 
 
-static void grReleaseScreen()
+static void grReleaseScreen(void)
 {
     free(platformGetSurfacePixels(grBackgroundSfc));
     platformFreeSurface(grBackgroundSfc);
@@ -57,7 +57,7 @@ static void grReleaseScreen()
 }
 
 
-static void grReleaseSavedLayer()
+static void grReleaseSavedLayer(void)
 {
     platformFreeSurface(grSavedZonesLayer);
     grSavedZonesLayer = NULL;
@@ -110,7 +110,7 @@ void grLoadPalette(struct TPalResource *palResource)
 }
 
 
-void graphicsInit()
+void graphicsInit(void)
 {
     platformInit();
 
@@ -140,20 +140,20 @@ void graphicsInit()
 }
 
 
-void graphicsEnd()
+void graphicsEnd(void)
 {
     platformDestroyWindow(platform_window);
     platformShutdown();
 }
 
 
-void grRefreshDisplay()
+void grRefreshDisplay(void)
 {
     platformUpdateWindow(platform_window);
 }
 
 
-void grToggleFullScreen()
+void grToggleFullScreen(void)
 {
     grWindowed = !grWindowed;
 
@@ -222,7 +222,7 @@ void grUpdateDisplay(struct TTtmThread *ttmBackgroundThread,
     // ... and refresh the display
     platformUpdateWindow(platform_window);
 }
-PlatformSurface *grNewLayer()
+PlatformSurface *grNewLayer(void)
 {
     PlatformSurface *sfc = platformCreateSurface(SCREEN_WIDTH, SCREEN_HEIGHT);
     PlatformRect dest = { 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT };
@@ -543,7 +543,7 @@ void grLoadScreen(char *strArg)
 }
 
 
-void grInitEmptyBackground()
+void grInitEmptyBackground(void)
 {
     if (grBackgroundSfc != NULL)
         grReleaseScreen();
@@ -604,7 +604,7 @@ void grLoadBmp(struct TTtmSlot *ttmSlot, uint16 slotNo, char *strArg)
 }
 
 
-void grFadeOut()
+void grFadeOut(void)
 {
     static int fadeOutType = 0;
     PlatformSurface *sfc = platformGetWindowSurface(platform_window);

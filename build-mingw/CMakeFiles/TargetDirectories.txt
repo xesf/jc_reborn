@@ -1,0 +1,7 @@
+/Users/xesf/Documents/workaround/github/jc_reborn-xesf/build-mingw/CMakeFiles/jc_reborn.dir
+/Users/xesf/Documents/workaround/github/jc_reborn-xesf/build-mingw/CMakeFiles/edit_cache.dir
+/Users/xesf/Documents/workaround/github/jc_reborn-xesf/build-mingw/CMakeFiles/rebuild_cache.dir
+/Users/xesf/Documents/workaround/github/jc_reborn-xesf/build-mingw/CMakeFiles/list_install_components.dir
+/Users/xesf/Documents/workaround/github/jc_reborn-xesf/build-mingw/CMakeFiles/install.dir
+/Users/xesf/Documents/workaround/github/jc_reborn-xesf/build-mingw/CMakeFiles/install/local.dir
+/Users/xesf/Documents/workaround/github/jc_reborn-xesf/build-mingw/CMakeFiles/install/strip.dir

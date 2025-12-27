@@ -7,6 +7,7 @@ CMakeFiles/jc_reborn.dir/walk.c.o: \
   /Users/xesf/Documents/workaround/github/emsdk/upstream/emscripten/cache/sysroot/include/bits/alltypes.h \
   /Users/xesf/Documents/workaround/github/emsdk/upstream/emscripten/cache/sysroot/include/bits/stdint.h \
   /Users/xesf/Documents/workaround/github/jc_reborn-xesf/graphics.h \
+  /Users/xesf/Documents/workaround/github/jc_reborn-xesf/resource.h \
   /Users/xesf/Documents/workaround/github/jc_reborn-xesf/utils.h \
   /Users/xesf/Documents/workaround/github/emsdk/upstream/emscripten/cache/sysroot/include/compat/stdlib.h \
   /Users/xesf/Documents/workaround/github/emsdk/upstream/emscripten/cache/sysroot/include/stdlib.h \

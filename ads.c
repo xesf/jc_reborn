@@ -192,7 +192,7 @@ static void adsLoad(uint8 *data, uint32 dataSize, uint16 numTags, uint16 tag, ui
 }
 
 
-static void adsReleaseAds()
+static void adsReleaseAds(void)
 {
     free(adsTags);
 }
@@ -313,7 +313,7 @@ static int isSceneRunning(uint16 ttmSlotNo, uint16 ttmTag)
 }
 
 
-static struct TAdsRandOp *adsRandomPickOp()
+static struct TAdsRandOp *adsRandomPickOp(void)
 {
     int totalWeight = 0;
     int partialWeight = 0;
@@ -337,7 +337,7 @@ static struct TAdsRandOp *adsRandomPickOp()
 }
 
 
-static void adsRandomStart()
+static void adsRandomStart(void)
 {
     adsNumRandOps = 0;
 }
@@ -378,7 +378,7 @@ static void adsRandomNop(uint16 weight)
 }
 
 
-static void adsRandomEnd()
+static void adsRandomEnd(void)
 {
     if (adsNumRandOps) {
 
@@ -407,7 +407,7 @@ static void adsRandomEnd()
 }
 
 
-void adsInit()    // Init slots and threads for TTM scripts  // TODO : rename
+void adsInit(void)    // Init slots and threads for TTM scripts  // TODO : rename
 {
     for (int i=0; i < MAX_TTM_SLOTS; i++)
         ttmInitSlot(&ttmSlots[i]);
@@ -823,7 +823,7 @@ void adsPlay(char *adsName, uint16 adsTag)
 }
 
 
-void adsPlayBench()  // TODO - tempo
+void adsPlayBench(void)  // TODO - tempo
 {
     int numsLayers[] = { 1, 4, 8 };
 
@@ -871,7 +871,7 @@ void adsPlayBench()  // TODO - tempo
 }
 
 
-void adsPlayIntro()
+void adsPlayIntro(void)
 {
     grLoadScreen("INTRO.SCR");
     grUpdateDelay = 100;
@@ -881,7 +881,7 @@ void adsPlayIntro()
 }
 
 
-void adsInitIsland()
+void adsInitIsland(void)
 {
     // Init the background thread (animated waves)
     // and call islandInit() to draw the background
@@ -925,7 +925,7 @@ void adsInitIsland()
 }
 
 
-void adsReleaseIsland()
+void adsReleaseIsland(void)
 {
     ttmBackgroundThread.isRunning = 0;
     ttmResetSlot(&ttmBackgroundSlot);
@@ -942,7 +942,7 @@ void adsReleaseIsland()
 }
 
 
-void adsNoIsland()
+void adsNoIsland(void)
 {
     grDx = grDy = 0;
     grInitEmptyBackground();

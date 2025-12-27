@@ -22,6 +22,7 @@
  */
 
 #include "platform.h"
+#include "resource.h"
 
 #define SCREEN_WIDTH        640
 #define SCREEN_HEIGHT       480
@@ -78,17 +79,17 @@ extern int grWindowed;
 extern int grUpdateDelay;
 
 
-void graphicsInit();
-void graphicsEnd();
-void grRefreshDisplay();
-void grToggleFullScreen();
+void graphicsInit(void);
+void graphicsEnd(void);
+void grRefreshDisplay(void);
+void grToggleFullScreen(void);
 void grUpdateDisplay(struct TTtmThread *ttmBackgroundThread,
                      struct TTtmThread *ttmThreads,
                      struct TTtmThread *ttmHolidayThreads,
                      struct TTtmThread *ttmCloudThreads);
 
-PlatformSurface *grNewEmptyBackground();
-PlatformSurface *grNewLayer();
+PlatformSurface *grNewEmptyBackground(void);
+PlatformSurface *grNewLayer(void);
 void grFreeLayer(PlatformSurface *sfc);
 
 void grLoadBmp(struct TTtmSlot *ttmSlot, uint16 slotNo, char *strArg);
@@ -105,10 +106,10 @@ void grDrawRect(PlatformSurface *sfc, sint16 x, sint16 y, uint16 width, uint16 h
 void grDrawCircle(PlatformSurface *sfc, sint16 x1, sint16 y1, uint16 width, uint16 height, uint8 fgColor, uint8 bgColor);
 void grDrawSprite(PlatformSurface *sfc, struct TTtmSlot *ttmSlot, sint16 x, sint16 y, uint16 spriteNo, uint16 imageNo);
 void grDrawSpriteFlip(PlatformSurface *sfc, struct TTtmSlot *ttmSlot, sint16 x, sint16 y, uint16 spriteNo, uint16 imageNo);
-void grInitEmptyBackground();
+void grInitEmptyBackground(void);
 void grClearScreen(PlatformSurface *sfc);
-void grFadeOut();
+void grFadeOut(void);
 
-void grLoadPalette();   // TODO
+void grLoadPalette(struct TPalResource *palResource);
 void grLoadScreen(char *strArg);
 
