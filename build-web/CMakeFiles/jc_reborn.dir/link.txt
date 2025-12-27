@@ -1,0 +1,1 @@
+/Users/xesf/Documents/workaround/github/emsdk/upstream/emscripten/emcc  -Wall -Wpedantic -Os  -sASYNCIFY -sALLOW_MEMORY_GROWTH -sSTANDALONE_WASM=0 -sEXIT_RUNTIME @CMakeFiles/jc_reborn.dir/objects1.rsp -o jc_reborn.js 

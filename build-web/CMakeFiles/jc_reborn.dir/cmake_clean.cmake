@@ -1,0 +1,43 @@
+file(REMOVE_RECURSE
+  "CMakeFiles/jc_reborn.dir/ads.c.o"
+  "CMakeFiles/jc_reborn.dir/ads.c.o.d"
+  "CMakeFiles/jc_reborn.dir/bench.c.o"
+  "CMakeFiles/jc_reborn.dir/bench.c.o.d"
+  "CMakeFiles/jc_reborn.dir/calcpath.c.o"
+  "CMakeFiles/jc_reborn.dir/calcpath.c.o.d"
+  "CMakeFiles/jc_reborn.dir/config.c.o"
+  "CMakeFiles/jc_reborn.dir/config.c.o.d"
+  "CMakeFiles/jc_reborn.dir/dump.c.o"
+  "CMakeFiles/jc_reborn.dir/dump.c.o.d"
+  "CMakeFiles/jc_reborn.dir/events.c.o"
+  "CMakeFiles/jc_reborn.dir/events.c.o.d"
+  "CMakeFiles/jc_reborn.dir/graphics.c.o"
+  "CMakeFiles/jc_reborn.dir/graphics.c.o.d"
+  "CMakeFiles/jc_reborn.dir/island.c.o"
+  "CMakeFiles/jc_reborn.dir/island.c.o.d"
+  "CMakeFiles/jc_reborn.dir/jc_reborn.c.o"
+  "CMakeFiles/jc_reborn.dir/jc_reborn.c.o.d"
+  "CMakeFiles/jc_reborn.dir/platform_web.c.o"
+  "CMakeFiles/jc_reborn.dir/platform_web.c.o.d"
+  "CMakeFiles/jc_reborn.dir/resource.c.o"
+  "CMakeFiles/jc_reborn.dir/resource.c.o.d"
+  "CMakeFiles/jc_reborn.dir/sound.c.o"
+  "CMakeFiles/jc_reborn.dir/sound.c.o.d"
+  "CMakeFiles/jc_reborn.dir/story.c.o"
+  "CMakeFiles/jc_reborn.dir/story.c.o.d"
+  "CMakeFiles/jc_reborn.dir/ttm.c.o"
+  "CMakeFiles/jc_reborn.dir/ttm.c.o.d"
+  "CMakeFiles/jc_reborn.dir/uncompress.c.o"
+  "CMakeFiles/jc_reborn.dir/uncompress.c.o.d"
+  "CMakeFiles/jc_reborn.dir/utils.c.o"
+  "CMakeFiles/jc_reborn.dir/utils.c.o.d"
+  "CMakeFiles/jc_reborn.dir/walk.c.o"
+  "CMakeFiles/jc_reborn.dir/walk.c.o.d"
+  "jc_reborn.js"
+  "jc_reborn.pdb"
+)
+
+# Per-language clean rules from dependency scanning.
+foreach(lang C)
+  include(CMakeFiles/jc_reborn.dir/cmake_clean_${lang}.cmake OPTIONAL)
+endforeach()
