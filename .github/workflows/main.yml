@@ -28,7 +28,7 @@ jobs:
             run: mv build/jc_reborn jc_reborn_macos_v0${{ github.run_number }}
 
           - name: Upload Artifact
-            uses: actions/upload-artifact@v3
+            uses: actions/upload-artifact@v6
             with:
                 name: jc_reborn_macos_v0${{ github.run_number }}
                 path: jc_reborn_macos_v0${{ github.run_number }}
@@ -61,7 +61,7 @@ jobs:
             run: mv build/jc_reborn jc_reborn_linux_v0${{ github.run_number }}
 
           - name: Upload Artifact
-            uses: actions/upload-artifact@v3
+            uses: actions/upload-artifact@v6
             with:
                 name: jc_reborn_linux_v0${{ github.run_number }}
                 path: jc_reborn_linux_v0${{ github.run_number }}
@@ -94,7 +94,7 @@ jobs:
             run: mv build-windows/jc_reborn.exe jc_reborn_windows_v0${{ github.run_number }}.exe
 
           - name: Upload Artifact
-            uses: actions/upload-artifact@v3
+            uses: actions/upload-artifact@v6
             with:
                 name: jc_reborn_windows_v0${{ github.run_number }}
                 path: jc_reborn_windows_v0${{ github.run_number }}.exe
@@ -129,7 +129,7 @@ jobs:
                 tar -czvf ../jc_reborn_web_v0${{ github.run_number }}.tar.gz jc_reborn.js jc_reborn.wasm ../index.html
 
             - name: Upload Artifact
-              uses: actions/upload-artifact@v3
+              uses: actions/upload-artifact@v6
               with:
                   name: jc_reborn_web_v0${{ github.run_number }}
                   path: jc_reborn_web_v0${{ github.run_number }}.tar.gz
@@ -142,7 +142,7 @@ jobs:
         needs: [macos, linux, windows, web]
         steps:
             - name: Download Artifacts
-              uses: actions/download-artifact@v3
+              uses: actions/download-artifact@v7
 
             - name: Show Artifacts
               run: ls -R
