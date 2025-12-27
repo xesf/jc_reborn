@@ -20,6 +20,7 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+#define MAX_RESOURCE_PATH 256
 
 //------------------------
 //    Types definitions
@@ -165,9 +166,8 @@ extern int numTtmResources;
 //    Functions prototypes
 //----------------------------
 
-void parseResourceFiles(char *);
+void parseResourceFiles(char *, char *);
 struct TAdsResource *findAdsResource(char *searchString);
 struct TBmpResource *findBmpResource(char *searchString);
 struct TScrResource *findScrResource(char *searchString);
 struct TTtmResource *findTtmResource(char *searchString);
-

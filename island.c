@@ -30,7 +30,7 @@
 #include "utils.h"
 
 
-struct TIslandState islandState = { 0, 0, 0, 0, 0, 0, 0, {0,0,0,0,0}, {0,0,0,0,0} };
+struct TIslandState islandState = {0};
 
 
 void islandInit(struct TTtmThread *ttmThread)
@@ -43,7 +43,7 @@ void islandInit(struct TTtmThread *ttmThread)
     }
     else {
         char scrName[12];
-        sprintf(scrName, "OCEAN0%d.SCR", rand() % 3);
+        sprintf(scrName, "OCEAN0%u.SCR", rand() % 3);
         grLoadScreen(scrName);
     }
 

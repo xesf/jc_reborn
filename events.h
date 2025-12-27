@@ -22,6 +22,7 @@
  */
 
 extern int evHotKeysEnabled;
+extern int evScreensaverEnabled;
 
 void eventsInit();
 void eventsWaitTick(uint16 delay);

@@ -36,6 +36,10 @@
 #include "ads.h"
 #include "story.h"
 
+#ifdef __WIN32__
+#include <windows.h>
+#endif
+
 
 static int  argDump     = 0;
 static int  argBench    = 0;
@@ -43,6 +47,11 @@ static int  argTtm      = 0;
 static int  argAds      = 0;
 static int  argPlayAll  = 0;
 static int  argIsland   = 0;
+
+#ifdef __WIN32__
+static int  argScrConfig     = 0;
+static int  argScrPreview    = 0;
+#endif
 
 static char *args[3];
 static int  numArgs  = 0;
@@ -74,6 +83,9 @@ static void usage()
         printf("         Return     - When paused, advance one frame\n");
         printf("         <M>        - toggle max / normal speed\n");
         printf("\n");
+#ifdef __WIN32__
+        printf(" Switches /c /p and /s are supported for screen saver compatibility.\n");
+#endif
         exit(1);
 }
 
@@ -87,6 +99,15 @@ static void version()
         printf("\n");
         exit(1);
 }
+
+
+#ifdef __WIN32__
+static void scrConfig()
+{
+        MessageBox(NULL, "This screen saver has no options that you can set.", "Johnny Reborn", MB_OK | MB_ICONINFORMATION);
+        exit(1);
+}
+#endif
 
 
 static void parseArgs(int argc, char **argv)
@@ -135,6 +156,18 @@ static void parseArgs(int argc, char **argv)
             else if (!strcmp(argv[i], "hotkeys")) {
                 evHotKeysEnabled = 1;
             }
+#ifdef __WIN32__
+            else if (!strnicmp(argv[i], "/c", 2)) {
+                argScrConfig = 1;
+            }
+            else if (!strnicmp(argv[i], "/p", 2)) {
+                argScrPreview = 1;
+                numExpectedArgs = 1;
+            }
+            else if (!strnicmp(argv[i], "/s", 2)) {
+                evScreensaverEnabled = 1;
+            }
+#endif
         }
     }
 
@@ -146,17 +179,44 @@ static void parseArgs(int argc, char **argv)
 
     if (argDump + argBench + argTtm + argAds == 0)
         argPlayAll = 1;
-}
 
+#ifdef __WIN32__
+    if (argScrConfig)
+        scrConfig();
+    
+    if (argScrPreview)
+        exit(1);
+#endif
+
+}
 
 int main(int argc, char **argv)
 {
+    
+#ifdef __WIN32__
+    if (AttachConsole(ATTACH_PARENT_PROCESS)) {
+        FILE* f;
+        freopen_s(&f, "CONOUT$", "w", stdout);
+        freopen_s(&f, "CONOUT$", "w", stderr);
+    }
+#endif
+    
     parseArgs(argc, argv);
 
     if (argDump)
         debugMode = 1;
+    
+    char path[MAX_RESOURCE_PATH] = {0};
+    snprintf(path, sizeof(path), "data");
+    
+#ifdef __WIN32__
+    char *programData = getenv("ProgramData");
+    if (programData != NULL && strlen(programData) && testFile(programData, PROG_DIR "/RESOURCE.MAP")) {
+        snprintf(path, sizeof(path), "%s/%s", programData, PROG_DIR);
+    }
+#endif
 
-    parseResourceFiles("data/RESOURCE.MAP");
+    parseResourceFiles(path, "RESOURCE.MAP");
 
     if (argPlayAll) {
         graphicsInit();

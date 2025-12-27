@@ -23,6 +23,11 @@
 
 #include <SDL2/SDL.h>
 
+#ifdef __WIN32__
+#include <SDL2/SDL_syswm.h>
+#include <windows.h>
+#endif
+
 #define SCREEN_WIDTH        640
 #define SCREEN_HEIGHT       480
 
@@ -30,6 +35,7 @@
 #define MAX_SPRITES_PER_BMP 120
 #define MAX_TTM_SLOTS       10
 #define MAX_TTM_THREADS     10
+#define USE_SDL_RENDERER
 
 
 struct TAdsScene {
@@ -111,4 +117,3 @@ void grFadeOut();
 
 void grLoadPalette();   // TODO
 void grLoadScreen(char *strArg);
-

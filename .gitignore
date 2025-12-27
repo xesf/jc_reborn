@@ -16,3 +16,6 @@ sound*.wav
 *.wasm
 build/
 .vscode/c_cpp_properties.json
+.jc_reborn
+tools/extract_sound
+tools/extract_sound.exe

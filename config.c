@@ -29,32 +29,37 @@
 #include "utils.h"
 #include "config.h"
 
+#ifdef __WIN32__
+#include <windows.h>
+#endif
+
 #define BUFFER_LEN 100
 
 
 static char *cfgFullPath()
 {
     char *home;
-    static char *result = NULL;
+    static char result[256] = {0};
 
 
-    if (result == NULL) {
+    if (result[0] == '\0') {
 
+#ifdef __WIN32__
+        home = getenv("ProgramData");
+        if (home != NULL && strlen(home) && testFile(home, PROG_DIR)) {
+            snprintf(result, sizeof(result), "%s/%s/%s", home, PROG_DIR, CFG_FILENAME);
+        }
+#else
         home = getenv("HOME");
+        if (home != NULL && strlen(home)) {
+            snprintf(result, sizeof(result), "%s/%s", home, CFG_FILENAME);
+        }
+#endif
 
-        if (home != NULL) {
-            if (strlen(home)) {
-                result = safe_malloc(strlen(home) + strlen(CFG_FILENAME) + 2);
-                strcpy(result, home);
-                strcat(result, "/");
-                strcat(result, CFG_FILENAME);
-            }
+        if (result[0] == '\0') {
+            snprintf(result, sizeof(result), "%s", CFG_FILENAME);
         }
 
-        if (result == NULL) {
-            result = safe_malloc(strlen(CFG_FILENAME) + 1);
-            strcpy(result, CFG_FILENAME);
-        }
     }
 
     return result;

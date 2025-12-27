@@ -1,5 +1,5 @@
 
-CFLAGS=-I/include/ -Wall --std=c99
+CFLAGS=-I/include/ -Wall --std=c99 -DPROG_DIR="\"Johnny Reborn\""
 
 LDFLAGS=-L/lib/ -mwindows
 
