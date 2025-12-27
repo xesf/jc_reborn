@@ -21,11 +21,7 @@
  *
  */
 
-#include <SDL2/SDL.h>
-#ifdef __EMSCRIPTEN__
-#include <emscripten.h>
-// EM_JS_DEPS(sdlaudio, "$autoResumeAudioContext,$dynCall")
-#endif
+#include "platform.h"
 #include <string.h>
 
 #include "mytypes.h"
@@ -68,18 +64,18 @@ static void soundCallback(void *userdata, uint8 *stream, int rqdLen)
 }
 
 
-void soundInit()
+void soundInit(void)
 {
     if (soundDisabled)
         return;
 
-    if (SDL_InitSubSystem(SDL_INIT_AUDIO) < 0) {
-        debugMsg("SDL init audio error: %s", SDL_GetError());
+    if (platformInitAudio() < 0) {
+        debugMsg("Platform init audio error: %s", platformGetError());
         soundDisabled = 1;
         return;
     }
 
-    SDL_AudioSpec audioSpec;
+    PlatformAudioSpec audioSpec;
 
     for (int i=1; i < NUM_OF_SOUNDS; i++) {
 
@@ -87,10 +83,10 @@ void soundInit()
 
         sprintf(filename, "data/sound%d.wav", i);
 
-        if (SDL_LoadWAV(filename, &audioSpec, &sounds[i].data, &sounds[i].length) == NULL) {
+        if (platformLoadWAV(filename, &audioSpec, &sounds[i].data, &sounds[i].length) != 0) {
             sounds[i].data   = NULL;
             sounds[i].length = 0;
-            debugMsg("SDL_LoadWAV() warning: %s", SDL_GetError());
+            debugMsg("platformLoadWAV() warning: %s", platformGetError());
         }
     }
 
@@ -98,14 +94,14 @@ void soundInit()
     audioSpec.userdata = NULL;
     audioSpec.samples  = 1024;
 
-    if (SDL_OpenAudio(&audioSpec, NULL) < 0) {
-        debugMsg("SDL_OpenAudio() error: %s", SDL_GetError());
+    if (platformOpenAudio(&audioSpec) < 0) {
+        debugMsg("platformOpenAudio() error: %s", platformGetError());
         soundDisabled = 1;
         return;
     }
 
     currentRemaining = 0;
-    SDL_PauseAudio(0); //SDL_PauseAudio(1);
+    platformPauseAudio(0);
 }
 
 
@@ -114,11 +110,11 @@ void soundEnd()
     if (soundDisabled)
         return;
 
-    SDL_CloseAudio();
+    platformCloseAudio();
 
     for (int i=0; i < NUM_OF_SOUNDS; i++)
         if (sounds[i].data != NULL)
-            SDL_FreeWAV(sounds[i].data);
+            platformFreeWAV(sounds[i].data);
 }
 
 
@@ -134,15 +130,13 @@ void soundPlay(int nb)
 
     if (sounds[nb].length) {
 
-        SDL_LockAudio();
-        //SDL_PauseAudio(1);
+        platformLockAudio();
 
         currentSound     = &sounds[nb];
         currentPtr       = currentSound->data;
         currentRemaining = currentSound->length;
 
-        //SDL_PauseAudio(0);
-        SDL_UnlockAudio();
+        platformUnlockAudio();
     }
     else {
         debugMsg("Non-existent sound sample #%d", nb);

@@ -23,7 +23,7 @@
 
 extern int soundDisabled;
 
-void soundInit();
-void soundEnd();
+void soundInit(void);
+void soundEnd(void);
 void soundPlay(int nb);
 

@@ -21,13 +21,13 @@
  *
  */
 
-void adsInit();
-void adsInitIsland();
-void adsReleaseIsland();
-void adsNoIsland();
+void adsInit(void);
+void adsInitIsland(void);
+void adsReleaseIsland(void);
+void adsNoIsland(void);
 void adsPlay(char *adsName, uint16 adsTag);
-void adsPlayIntro();
-void adsPlayWalk();
+void adsPlayIntro(void);
+void adsPlayWalk(int fromSpot, int fromHdg, int toSpot, int toHdg);
 void adsPlaySingleTtm(char *ttmName);
-void adsPlayBench();  // TODO
+void adsPlayBench(void);
 

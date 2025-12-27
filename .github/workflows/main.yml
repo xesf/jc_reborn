@@ -1,29 +1,32 @@
-name: 'Johnny Reborn: Johnny Castaway Cross-Platform Workflow'
+name: 'Johnny Reborn: Johnny Castaway Cross-Platform Workflow (CMake)'
 on:
-    push:
-        branches: [master]
     pull_request:
         branches: [master]
 
 jobs:
     macos:
-      name: MacOS Arm Build
+      name: MacOS Build
       runs-on: macos-latest
       steps:
           - name: Checkout
-            uses: actions/checkout@v3
-          
-          - name: Install SDL2
-            run: brew install sdl2
+            uses: actions/checkout@v4
+
+          - name: Configure CMake
+            run: |
+              mkdir build
+              cd build
+              cmake ..
 
           - name: Build
-            run: make
+            run: |
+              cd build
+              cmake --build .
 
           - name: Rename
-            run: mv jc_reborn jc_reborn_macos_v0${{ github.run_number }}
+            run: mv build/jc_reborn jc_reborn_macos_v0${{ github.run_number }}
 
           - name: Upload Artifact
-            uses: actions/upload-artifact@v2
+            uses: actions/upload-artifact@v6
             with:
                 name: jc_reborn_macos_v0${{ github.run_number }}
                 path: jc_reborn_macos_v0${{ github.run_number }}
@@ -34,52 +37,62 @@ jobs:
       runs-on: ubuntu-latest
       steps:
           - name: Checkout
-            uses: actions/checkout@v3
+            uses: actions/checkout@v4
           
-          - name: Install SDL2
+          - name: Install Dependencies
             run: |
               sudo apt-get update
-              sudo apt-get install libsdl2-dev
+              sudo apt-get install libx11-dev libasound2-dev
+
+          - name: Configure CMake
+            run: |
+              mkdir build
+              cd build
+              cmake ..
 
           - name: Build
-            run: make
+            run: |
+              cd build
+              cmake --build .
 
           - name: Rename
-            run: mv jc_reborn jc_reborn_linux_v0${{ github.run_number }}
+            run: mv build/jc_reborn jc_reborn_linux_v0${{ github.run_number }}
 
           - name: Upload Artifact
-            uses: actions/upload-artifact@v2
+            uses: actions/upload-artifact@v6
             with:
                 name: jc_reborn_linux_v0${{ github.run_number }}
                 path: jc_reborn_linux_v0${{ github.run_number }}
                 retention-days: 1
+
     windows:
       name: Windows Build
-      runs-on: windows-latest
+      runs-on: ubuntu-latest
       steps:
           - name: Checkout
-            uses: actions/checkout@v3
+            uses: actions/checkout@v4
           
-          - name: Install SDL2
-            uses: msys2/setup-msys2@v2
-            with:
-              msystem: mingw32
-              install: >-
-                mingw-w64-i686-cc
-                mingw-w64-i686-make
-                mingw-w64-i686-pkg-config
-                mingw-w64-i686-SDL2
+          - name: Install MinGW
+            run: |
+              sudo apt-get update
+              sudo apt-get install mingw-w64
+
+          - name: Configure CMake
+            run: |
+              mkdir build-windows
+              cd build-windows
+              cmake -DCMAKE_TOOLCHAIN_FILE=../toolchain-mingw.cmake ..
 
           - name: Build
-            shell: msys2 {0}
-            run: mingw32-make -f Makefile.MinGW
+            run: |
+              cd build-windows
+              cmake --build .
 
           - name: Rename
-            shell: cmd
-            run: ren jc_reborn.exe jc_reborn_windows_v0${{ github.run_number }}.exe
+            run: mv build-windows/jc_reborn.exe jc_reborn_windows_v0${{ github.run_number }}.exe
 
           - name: Upload Artifact
-            uses: actions/upload-artifact@v2
+            uses: actions/upload-artifact@v6
             with:
                 name: jc_reborn_windows_v0${{ github.run_number }}
                 path: jc_reborn_windows_v0${{ github.run_number }}.exe
@@ -90,26 +103,31 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             - name: Checkout
-              uses: actions/checkout@v3
+              uses: actions/checkout@v4
             
             - name: Install Emscripten
-              shell: bash
+              uses: mymindstorm/setup-emsdk@v12
+              with:
+                version: 'latest'
+
+            - name: Configure CMake
               run: |
-                cd /tmp && git clone https://github.com/emscripten-core/emsdk && cd emsdk && ./emsdk install latest && ./emsdk activate latest && \
-                bash -c "source emsdk_env.sh" && \
-                echo 'source "/tmp/emsdk/emsdk_env.sh"' >> ~/.bash_profile
-            
+                mkdir build-web
+                cd build-web
+                emcmake cmake ..
+
             - name: Build
-              run: | 
-                source ~/.bash_profile && \
-                EMSCRIPTEN=1 emmake make clean && \
-                EMSCRIPTEN=1 emmake make
+              run: |
+                cd build-web
+                cmake --build .
 
             - name: Distribution
-              run: tar -czvf jc_reborn_web_v0${{ github.run_number }}.tar.gz jc_reborn.js jc_reborn.wasm index.html favicon.ico
+              run: |
+                cd build-web
+                tar -czvf ../jc_reborn_web_v0${{ github.run_number }}.tar.gz jc_reborn.js jc_reborn.wasm ../index.html
 
             - name: Upload Artifact
-              uses: actions/upload-artifact@v2
+              uses: actions/upload-artifact@v6
               with:
                   name: jc_reborn_web_v0${{ github.run_number }}
                   path: jc_reborn_web_v0${{ github.run_number }}.tar.gz
@@ -122,7 +140,7 @@ jobs:
         needs: [macos, linux, windows, web]
         steps:
             - name: Download Artifacts
-              uses: actions/download-artifact@v2
+              uses: actions/download-artifact@v7
 
             - name: Show Artifacts
               run: ls -R

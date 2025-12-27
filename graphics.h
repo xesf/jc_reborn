@@ -21,7 +21,8 @@
  *
  */
 
-#include <SDL2/SDL.h>
+#include "platform.h"
+#include "resource.h"
 
 #define SCREEN_WIDTH        640
 #define SCREEN_HEIGHT       480
@@ -45,7 +46,7 @@ struct TTtmSlot {
     struct      TTtmTag *tags;
     int         numTags;
     int         numSprites[MAX_BMP_SLOTS];
-    SDL_Surface *sprites[MAX_BMP_SLOTS][MAX_SPRITES_PER_BMP];
+    PlatformSurface *sprites[MAX_BMP_SLOTS][MAX_SPRITES_PER_BMP];
 };
 
 struct TTtmTag {  // TODO : rename, used for ADS too
@@ -67,10 +68,10 @@ struct TTtmThread {
     uint8  selectedBmpSlot;
     uint8  fgColor;
     uint8  bgColor;
-    SDL_Surface *ttmLayer;
+    PlatformSurface *ttmLayer;
 };
 
-extern SDL_Surface *grBackgroundSfc;
+extern PlatformSurface *grBackgroundSfc;
 
 extern int grDx;
 extern int grDy;
@@ -78,37 +79,37 @@ extern int grWindowed;
 extern int grUpdateDelay;
 
 
-void graphicsInit();
-void graphicsEnd();
-void grRefreshDisplay();
-void grToggleFullScreen();
+void graphicsInit(void);
+void graphicsEnd(void);
+void grRefreshDisplay(void);
+void grToggleFullScreen(void);
 void grUpdateDisplay(struct TTtmThread *ttmBackgroundThread,
                      struct TTtmThread *ttmThreads,
                      struct TTtmThread *ttmHolidayThreads,
                      struct TTtmThread *ttmCloudThreads);
 
-SDL_Surface *grNewEmptyBackground();
-SDL_Surface *grNewLayer();
-void grFreeLayer(SDL_Surface *sfc);
+PlatformSurface *grNewEmptyBackground(void);
+PlatformSurface *grNewLayer(void);
+void grFreeLayer(PlatformSurface *sfc);
 
 void grLoadBmp(struct TTtmSlot *ttmSlot, uint16 slotNo, char *strArg);
 void grReleaseBmp(struct TTtmSlot *ttmSlot, uint16 bmpSlotNo);
 
-void grSetClipZone(SDL_Surface *sfc, sint16 x1, sint16 y1, sint16 x2, sint16 y2);
-void grCopyZoneToBg(SDL_Surface *sfc, uint16 arg0, uint16 arg1, uint16 arg2, uint16 arg3);
-void grSaveImage1(SDL_Surface *sfc, uint16 arg0, uint16 arg1, uint16 arg2, uint16 arg3);
-void grSaveZone(SDL_Surface *sfc, uint16 arg0, uint16 arg1, uint16 arg2, uint16 arg3);
-void grRestoreZone(SDL_Surface *sfc, uint16 arg0, uint16 arg1, uint16 arg2, uint16 arg3);
-void grDrawPixel(SDL_Surface *sfc, sint16 x, sint16 y, uint8 color);
-void grDrawLine(SDL_Surface *sfc, sint16 x1, sint16 y1, sint16 x2, sint16 y2, uint8 color);
-void grDrawRect(SDL_Surface *sfc, sint16 x, sint16 y, uint16 width, uint16 height, uint8 color);
-void grDrawCircle(SDL_Surface *sfc, sint16 x1, sint16 y1, uint16 width, uint16 height, uint8 fgColor, uint8 bgColor);
-void grDrawSprite(SDL_Surface *sfc, struct TTtmSlot *ttmSlot, sint16 x, sint16 y, uint16 spriteNo, uint16 imageNo);
-void grDrawSpriteFlip(SDL_Surface *sfc, struct TTtmSlot *ttmSlot, sint16 x, sint16 y, uint16 spriteNo, uint16 imageNo);
-void grInitEmptyBackground();
-void grClearScreen(SDL_Surface *sfc);
-void grFadeOut();
+void grSetClipZone(PlatformSurface *sfc, sint16 x1, sint16 y1, sint16 x2, sint16 y2);
+void grCopyZoneToBg(PlatformSurface *sfc, uint16 arg0, uint16 arg1, uint16 arg2, uint16 arg3);
+void grSaveImage1(PlatformSurface *sfc, uint16 arg0, uint16 arg1, uint16 arg2, uint16 arg3);
+void grSaveZone(PlatformSurface *sfc, uint16 arg0, uint16 arg1, uint16 arg2, uint16 arg3);
+void grRestoreZone(PlatformSurface *sfc, uint16 arg0, uint16 arg1, uint16 arg2, uint16 arg3);
+void grDrawPixel(PlatformSurface *sfc, sint16 x, sint16 y, uint8 color);
+void grDrawLine(PlatformSurface *sfc, sint16 x1, sint16 y1, sint16 x2, sint16 y2, uint8 color);
+void grDrawRect(PlatformSurface *sfc, sint16 x, sint16 y, uint16 width, uint16 height, uint8 color);
+void grDrawCircle(PlatformSurface *sfc, sint16 x1, sint16 y1, uint16 width, uint16 height, uint8 fgColor, uint8 bgColor);
+void grDrawSprite(PlatformSurface *sfc, struct TTtmSlot *ttmSlot, sint16 x, sint16 y, uint16 spriteNo, uint16 imageNo);
+void grDrawSpriteFlip(PlatformSurface *sfc, struct TTtmSlot *ttmSlot, sint16 x, sint16 y, uint16 spriteNo, uint16 imageNo);
+void grInitEmptyBackground(void);
+void grClearScreen(PlatformSurface *sfc);
+void grFadeOut(void);
 
-void grLoadPalette();   // TODO
+void grLoadPalette(struct TPalResource *palResource);
 void grLoadScreen(char *strArg);
 

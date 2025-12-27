@@ -21,5 +21,5 @@
  *
  */
 
-void storyPlay();
+void storyPlay(void);
 

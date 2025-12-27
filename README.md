@@ -2,7 +2,14 @@
 
 Johnny Reborn is an open source engine for the classic Johnny Castaway screen saver, developed by Dynamix for Windows 3.x and published by Sierra, back in 1992.
 
-It is written in C using the SDL2 library, and was successfully compiled and tested on Linux, on MacOSX, on Chrome and FireFox via Emscripten, as well as Windows (MinGW), both 32 and 64 bits.
+It is written in C and has been refactored to use platform-native APIs instead of SDL2, providing better integration with each operating system.
+
+## Supported Platforms
+
+- **macOS**: Uses Cocoa for graphics and CoreAudio for sound
+- **Linux**: Uses X11 for graphics and ALSA for sound  
+- **Windows**: Uses Win32 API for graphics and WASAPI for sound
+- **Web**: Uses HTML5 Canvas and Web Audio API (via Emscripten)
 
 
 ## How to install
@@ -19,28 +26,99 @@ Use `extract_sound` to dump the audio files from `SCRANTIC.SCR` file.
 > ./extract_sound
 
 
-## How to run
+## Building
 
-> make
+### Prerequisites
 
-> ./jc_reborn window
+#### macOS
+```bash
+# Install Xcode Command Line Tools
+xcode-select --install
 
+# Install CMake (via Homebrew)
+brew install cmake
+```
 
-## How to run on the browser
+#### Linux (Ubuntu/Debian)
+```bash
+sudo apt-get update
+sudo apt-get install build-essential cmake
+sudo apt-get install libx11-dev libasound2-dev
+```
 
-Emscripten installation details can be found here: https://emscripten.org/docs/getting_started/downloads.html
+#### Windows
+- Install Visual Studio 2019 or later with C++ support
+- Install CMake from https://cmake.org/download/
+- Or use MinGW-w64 with CMake
 
-> EMSCRIPTEN=1 emmake make
+#### Web (Emscripten)
+```bash
+# Install Emscripten SDK
+git clone https://github.com/emscripten-core/emsdk.git
+cd emsdk
+./emsdk install latest
+./emsdk activate latest
+source ./emsdk_env.sh
+```
 
-> emrun --no_browser --port 8081 .
+### Build Instructions
 
+#### macOS, Linux, Windows
+
+```bash
+# Create build directory
+mkdir build
+cd build
+
+# Configure
+cmake ..
+
+# Build
+cmake --build .
+
+# Run
+./jc_reborn
+```
+
+#### For Release builds (optimized):
+```bash
+cmake -DCMAKE_BUILD_TYPE=Release ..
+cmake --build .
+```
+
+#### Web (Emscripten)
+
+```bash
+# Make sure Emscripten is activated
+source /path/to/emsdk/emsdk_env.sh
+
+# Create build directory
+mkdir build-web
+cd build-web
+
+# Configure with Emscripten
+emcmake cmake ..
+
+# Build
+cmake --build .
+
+# Serve locally
+python3 -m http.server 8000
+
+# Open browser to http://localhost:8000/jc_reborn.html
+```
+
+## Usage
+
+By default, the engine runs full screen and plays the life of Johnny on his island, as the original did.
+
+If you're curious about how the engine works, you may type `jc_reborn help` and see the different options available. Feel free to try them and explore the inner workings of Screen Antics!
 Then open your browser and go to `http://localhost:8081`
 
 
 By default, the engine runs full screen and plays the life of Johnny on his island, as the original did.
 
 But, if you're curious about how the engine works, you may type `jc_reborn help` and see the different options available. Feel free to try them and explore the inner workings of Screen Antics !
-
 
 ## Current status
 

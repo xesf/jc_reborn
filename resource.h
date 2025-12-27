@@ -21,6 +21,9 @@
  *
  */
 
+#ifndef RESOURCE_H
+#define RESOURCE_H
+
 //------------------------
 //    Types definitions
 //------------------------
@@ -171,3 +174,4 @@ struct TBmpResource *findBmpResource(char *searchString);
 struct TScrResource *findScrResource(char *searchString);
 struct TTtmResource *findTtmResource(char *searchString);
 
+#endif

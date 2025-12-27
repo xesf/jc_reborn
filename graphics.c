@@ -24,10 +24,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-#include <SDL2/SDL.h>
-#ifdef __EMSCRIPTEN__
-#include <emscripten/html5.h>
-#endif
+#include "platform.h"
 
 #include "mytypes.h"
 #include "utils.h"
@@ -36,15 +33,15 @@
 #include "events.h"
 
 
-static SDL_Window *sdl_window;
+static PlatformWindow *platform_window;
 
 static uint8 ttmPalette[16][4];
 
-static SDL_Surface *grSavedZonesLayer = NULL;
+static PlatformSurface *grSavedZonesLayer = NULL;
 
-static SDL_Rect grScreenOrigin = { 0, 0, 0, 0 };   // TODO
+static PlatformRect grScreenOrigin = { 0, 0, 0, 0 };   // TODO
 
-SDL_Surface *grBackgroundSfc = NULL;
+PlatformSurface *grBackgroundSfc = NULL;
 
 int grDx = 0;
 int grDy = 0;
@@ -52,31 +49,31 @@ int grWindowed = 0;
 int grUpdateDelay = 0;
 
 
-static void grReleaseScreen()
+static void grReleaseScreen(void)
 {
-    free(grBackgroundSfc->pixels);
-    SDL_FreeSurface(grBackgroundSfc);
+    free(platformGetSurfacePixels(grBackgroundSfc));
+    platformFreeSurface(grBackgroundSfc);
     grBackgroundSfc = NULL;
 }
 
 
-static void grReleaseSavedLayer()
+static void grReleaseSavedLayer(void)
 {
-    SDL_FreeSurface(grSavedZonesLayer);
+    platformFreeSurface(grSavedZonesLayer);
     grSavedZonesLayer = NULL;
 }
 
 
-static void grPutPixel(SDL_Surface *sfc, uint16 x, uint16 y, uint8 color)
+static void grPutPixel(PlatformSurface *sfc, uint16 x, uint16 y, uint8 color)
 {
     // TODO: Implement Cohen-Sutherland clipping algorithm or such for
     // grDrawLine(), and another ad hoc algorithm for grDrawCircle()
 
     if (x>=0 && y>=0 && x<SCREEN_WIDTH && y<SCREEN_HEIGHT) {
 
-        uint8 *pixel = (uint8*) sfc->pixels;
+        uint8 *pixel = platformGetSurfacePixels(sfc);
 
-        pixel += (y * sfc->pitch) + (x * sfc->format->BytesPerPixel);
+        pixel += (y * platformGetSurfacePitch(sfc)) + (x * platformGetSurfaceBytesPerPixel(sfc));
 
         pixel[0] = ttmPalette[color][0];
         pixel[1] = ttmPalette[color][1];
@@ -86,7 +83,7 @@ static void grPutPixel(SDL_Surface *sfc, uint16 x, uint16 y, uint8 color)
 }
 
 
-static void grDrawHorizontalLine(SDL_Surface *sfc, sint16 x1, sint16 x2, sint16 y, uint8 color)
+static void grDrawHorizontalLine(PlatformSurface *sfc, sint16 x1, sint16 x2, sint16 y, uint8 color)
 {
     if (y < 0 || y > 479)
         return;
@@ -113,32 +110,27 @@ void grLoadPalette(struct TPalResource *palResource)
 }
 
 
-void graphicsInit()
+void graphicsInit(void)
 {
-    SDL_Init(SDL_INIT_VIDEO);
+    platformInit();
 
-    sdl_window = SDL_CreateWindow(
+    platform_window = platformCreateWindow(
         "Johnny Reborn ...?",
-        SDL_WINDOWPOS_UNDEFINED,
-        SDL_WINDOWPOS_UNDEFINED,
         SCREEN_WIDTH,
         SCREEN_HEIGHT,
-        (grWindowed ? 0 : SDL_WINDOW_FULLSCREEN)
+        (grWindowed ? 0 : 1)
     );
-#ifdef __EMSCRIPTEN__
-    emscripten_set_canvas_element_size("#canvas", SCREEN_WIDTH, SCREEN_HEIGHT);
-#endif
 
-    if (sdl_window == NULL)
-        fatalError("Could not create window: %s", SDL_GetError());
+    if (platform_window == NULL)
+        fatalError("Could not create window: %s", platformGetError());
 
     grScreenOrigin.x = (SCREEN_WIDTH - 640) / 2;
     grScreenOrigin.y = (SCREEN_HEIGHT - 480) / 2;
 
     if (!grWindowed)
-        SDL_ShowCursor(SDL_DISABLE);
+        platformShowCursor(0);
 
-    SDL_UpdateWindowSurface(sdl_window);
+    platformUpdateWindow(platform_window);
 
     grLoadPalette(palResources[0]);  // TODO ?
 
@@ -148,33 +140,33 @@ void graphicsInit()
 }
 
 
-void graphicsEnd()
+void graphicsEnd(void)
 {
-    SDL_DestroyWindow(sdl_window);
-    SDL_Quit();
+    platformDestroyWindow(platform_window);
+    platformShutdown();
 }
 
 
-void grRefreshDisplay()
+void grRefreshDisplay(void)
 {
-    SDL_UpdateWindowSurface(sdl_window);
+    platformUpdateWindow(platform_window);
 }
 
 
-void grToggleFullScreen()
+void grToggleFullScreen(void)
 {
     grWindowed = !grWindowed;
 
+    platformToggleFullscreen(platform_window);
+    
     if (grWindowed) {
-        SDL_SetWindowFullscreen(sdl_window, 0);
-        SDL_ShowCursor(SDL_ENABLE);
+        platformShowCursor(1);
     }
     else {
-        SDL_SetWindowFullscreen(sdl_window, SDL_WINDOW_FULLSCREEN);
-        SDL_ShowCursor(SDL_DISABLE);
+        platformShowCursor(0);
     }
 
-    SDL_UpdateWindowSurface(sdl_window);
+    platformUpdateWindow(platform_window);
 }
 
 
@@ -183,89 +175,89 @@ void grUpdateDisplay(struct TTtmThread *ttmBackgroundThread,
                      struct TTtmThread *ttmHolidayThread,
                      struct TTtmThread *ttmCloudsThread)
 {
+    PlatformSurface* windowSurface = platformGetWindowSurface(platform_window);
+    
     // Blit the background
     if (grBackgroundSfc != NULL)
-        SDL_BlitSurface(grBackgroundSfc,
+        platformBlitSurface(grBackgroundSfc,
                         NULL,
-                        SDL_GetWindowSurface(sdl_window),
+                        windowSurface,
                         &grScreenOrigin);
 
     // Blit the Clouds
     if (ttmCloudsThread != NULL)
         if (ttmCloudsThread->isRunning)
-            SDL_BlitSurface(ttmCloudsThread->ttmLayer,
+            platformBlitSurface(ttmCloudsThread->ttmLayer,
                             NULL,
-                            SDL_GetWindowSurface(sdl_window),
+                            windowSurface,
                             &grScreenOrigin);
 
     // If not NULL, blit the optional layer of saved zones
     if (grSavedZonesLayer != NULL)
-        SDL_BlitSurface(grSavedZonesLayer,
+        platformBlitSurface(grSavedZonesLayer,
                         NULL,
-                        SDL_GetWindowSurface(sdl_window),
+                        windowSurface,
                         &grScreenOrigin);
 
 
     // Blit successively each thread's layer
     for (int i=0; i < MAX_TTM_THREADS; i++)
         if (ttmThreads[i].isRunning)
-            SDL_BlitSurface(ttmThreads[i].ttmLayer,
+            platformBlitSurface(ttmThreads[i].ttmLayer,
                             NULL,
-                            SDL_GetWindowSurface(sdl_window),
+                            windowSurface,
                             &grScreenOrigin);
 
     // Finally, blit the holiday layer
     if (ttmHolidayThread != NULL)
         if (ttmHolidayThread->isRunning)
-            SDL_BlitSurface(ttmHolidayThread->ttmLayer,
+            platformBlitSurface(ttmHolidayThread->ttmLayer,
                             NULL,
-                            SDL_GetWindowSurface(sdl_window),
+                            windowSurface,
                             &grScreenOrigin);
 
     // Wait for the tick ...
     eventsWaitTick(grUpdateDelay);
 
     // ... and refresh the display
-    SDL_UpdateWindowSurface(sdl_window);
+    platformUpdateWindow(platform_window);
 }
-
-
-SDL_Surface *grNewLayer()
+PlatformSurface *grNewLayer(void)
 {
-    SDL_Surface *sfc = SDL_CreateRGBSurface(SDL_SWSURFACE, SCREEN_WIDTH, SCREEN_HEIGHT, 32, 0, 0, 0, 0);
-    SDL_Rect dest = { 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT };
-    SDL_FillRect(sfc, &dest, SDL_MapRGB(sfc->format, 0xa8, 0, 0xa8));
-    SDL_SetColorKey(sfc, SDL_TRUE, SDL_MapRGB(sfc->format, 0xa8, 0, 0xa8));
+    PlatformSurface *sfc = platformCreateSurface(SCREEN_WIDTH, SCREEN_HEIGHT);
+    PlatformRect dest = { 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT };
+    platformFillRect(sfc, &dest, 0xa8, 0, 0xa8, 0);
+    platformSetColorKey(sfc, 0xa8, 0, 0xa8);
 
     return sfc;
 }
 
 
-void grFreeLayer(SDL_Surface *sfc)
+void grFreeLayer(PlatformSurface *sfc)
 {
-    SDL_FreeSurface(sfc);
+    platformFreeSurface(sfc);
 }
 
 
-void grSetClipZone(SDL_Surface *sfc, sint16 x1, sint16 y1, sint16 x2, sint16 y2)
+void grSetClipZone(PlatformSurface *sfc, sint16 x1, sint16 y1, sint16 x2, sint16 y2)
 {
     x1 += grDx; y1 += grDy;
     x2 += grDx; y2 += grDy;
 
-    SDL_Rect rect = { x1, y1, x2-x1, y2-y1 };
-    SDL_SetClipRect(sfc, &rect);
+    PlatformRect rect = { x1, y1, x2-x1, y2-y1 };
+    platformSetClipRect(sfc, &rect);
 }
 
 
-void grCopyZoneToBg(SDL_Surface *sfc, uint16 x, uint16 y, uint16 width, uint16 height)
+void grCopyZoneToBg(PlatformSurface *sfc, uint16 x, uint16 y, uint16 width, uint16 height)
 {
     x += grDx; y += grDy;
-    SDL_Rect rect = { (short) x, (short) y, width + 2, height };
+    PlatformRect rect = { (short) x, (short) y, width + 2, height };
 
     if (grSavedZonesLayer == NULL)
         grSavedZonesLayer = grNewLayer();
 
-    SDL_BlitSurface(sfc, &rect, grSavedZonesLayer, &rect);
+    platformBlitSurface(sfc, &rect, grSavedZonesLayer, &rect);
 
     // Note : without the +2 in width+2 above, there would be a graphical
     // glitch (2 unfilled pixels) on the hull of the cargo, caused by an
@@ -275,7 +267,7 @@ void grCopyZoneToBg(SDL_Surface *sfc, uint16 x, uint16 y, uint16 width, uint16 h
 }
 
 
-void grSaveImage1(SDL_Surface *sfc, uint16 arg0, uint16 arg1, uint16 arg2, uint16 arg3) // TODO : rename ?
+void grSaveImage1(PlatformSurface *sfc, uint16 arg0, uint16 arg1, uint16 arg2, uint16 arg3) // TODO : rename ?
 {
 //    ttmSetColors(4,4);
 //    ttmDrawRect(arg0,arg1,arg2,arg3);
@@ -284,14 +276,14 @@ void grSaveImage1(SDL_Surface *sfc, uint16 arg0, uint16 arg1, uint16 arg2, uint1
 }
 
 
-void grSaveZone(SDL_Surface *sfc, uint16 x, uint16 y, uint16 width, uint16 height)
+void grSaveZone(PlatformSurface *sfc, uint16 x, uint16 y, uint16 width, uint16 height)
 {
     // Minimalistic implementation: we don't really save the zone,
     // and let grRestoreZone() simply erase the 'saved zones' layer
 }
 
 
-void grRestoreZone(SDL_Surface *sfc, uint16 x, uint16 y, uint16 width, uint16 height)
+void grRestoreZone(PlatformSurface *sfc, uint16 x, uint16 y, uint16 width, uint16 height)
 {
     // In Johnny's TTMs, we never have RESTORE_ZONE called
     // while several zones are saved. So we simply free the
@@ -300,19 +292,19 @@ void grRestoreZone(SDL_Surface *sfc, uint16 x, uint16 y, uint16 width, uint16 he
 }
 
 
-void grDrawPixel(SDL_Surface *sfc, sint16 x, sint16 y, uint8 color)
+void grDrawPixel(PlatformSurface *sfc, sint16 x, sint16 y, uint8 color)
 {
     x += grDx; y += grDy;
     grPutPixel(sfc, x, y, color);
 }
 
 
-void grDrawLine(SDL_Surface *sfc, sint16 x1, sint16 y1, sint16 x2, sint16 y2, uint8 color)
+void grDrawLine(PlatformSurface *sfc, sint16 x1, sint16 y1, sint16 x2, sint16 y2, uint8 color)
 {
     x1 += grDx; y1 += grDy;
     x2 += grDx; y2 += grDy;
 
-    SDL_LockSurface(sfc);
+    platformLockSurface(sfc);
 
     // Bresenham's line drawing algorithm
     // Note : the code below intends to be pixel-perfect
@@ -361,27 +353,25 @@ void grDrawLine(SDL_Surface *sfc, sint16 x1, sint16 y1, sint16 x2, sint16 y2, ui
         }
     }
 
-    SDL_UnlockSurface(sfc);
+    platformUnlockSurface(sfc);
 }
 
 
-void grDrawRect(SDL_Surface *sfc, sint16 x, sint16 y, uint16 width, uint16 height, uint8 color)
+void grDrawRect(PlatformSurface *sfc, sint16 x, sint16 y, uint16 width, uint16 height, uint8 color)
 {
     x += grDx; y += grDy;
 
-    SDL_Rect dest = { x, y, width, height };
-    SDL_FillRect(sfc,
-                 &dest,
-                 SDL_MapRGB(sfc->format,
-                            ttmPalette[color][2],  // TODO ?
-                            ttmPalette[color][1],
-                            ttmPalette[color][0]
-                 )
+    PlatformRect dest = { x, y, width, height };
+    platformFillRect(sfc, &dest,
+                     ttmPalette[color][2],  // TODO ?
+                     ttmPalette[color][1],
+                     ttmPalette[color][0],
+                     0
     );
 }
 
 
-void grDrawCircle(SDL_Surface *sfc, sint16 x1, sint16 y1, uint16 width, uint16 height, uint8 fgColor, uint8 bgColor)
+void grDrawCircle(PlatformSurface *sfc, sint16 x1, sint16 y1, uint16 width, uint16 height, uint8 fgColor, uint8 bgColor)
 {
     x1 += grDx; y1 += grDy;
 
@@ -400,7 +390,7 @@ void grDrawCircle(SDL_Surface *sfc, sint16 x1, sint16 y1, uint16 width, uint16 h
     // Bresenham's circle drawing algorithm
     // Note : the code below intends to be pixel-perfect
 
-    SDL_LockSurface(sfc);
+    platformLockSurface(sfc);
 
     uint16 r = (width >> 1) - 1;
     uint16 xc = x1 + r;
@@ -464,11 +454,11 @@ void grDrawCircle(SDL_Surface *sfc, sint16 x1, sint16 y1, uint16 width, uint16 h
         }
     }
 
-    SDL_UnlockSurface(sfc);
+    platformUnlockSurface(sfc);
 }
 
 
-void grDrawSprite(SDL_Surface *sfc, struct TTtmSlot *ttmSlot, sint16 x, sint16 y, uint16 spriteNo, uint16 imageNo)
+void grDrawSprite(PlatformSurface *sfc, struct TTtmSlot *ttmSlot, sint16 x, sint16 y, uint16 spriteNo, uint16 imageNo)
 {
     if (spriteNo >= ttmSlot->numSprites[imageNo]) {
         fprintf(stderr, "Warning : grDrawSprite(): less than %d sprites loaded in slot %d\n", imageNo, spriteNo);
@@ -477,14 +467,14 @@ void grDrawSprite(SDL_Surface *sfc, struct TTtmSlot *ttmSlot, sint16 x, sint16 y
 
     x += grDx; y += grDy;
 
-    SDL_Surface *srcSfc = ttmSlot->sprites[imageNo][spriteNo];
+    PlatformSurface *srcSfc = ttmSlot->sprites[imageNo][spriteNo];
 
-    SDL_Rect dest = { x, y, 0, 0 };
-    SDL_BlitSurface(srcSfc, NULL, sfc, &dest);
+    PlatformRect dest = { x, y, 0, 0 };
+    platformBlitSurface(srcSfc, NULL, sfc, &dest);
 }
 
 
-void grDrawSpriteFlip(SDL_Surface *sfc, struct TTtmSlot *ttmSlot, sint16 x, sint16 y, uint16 spriteNo, uint16 imageNo)
+void grDrawSpriteFlip(PlatformSurface *sfc, struct TTtmSlot *ttmSlot, sint16 x, sint16 y, uint16 spriteNo, uint16 imageNo)
 {
     if (spriteNo >= ttmSlot->numSprites[imageNo]) {
         fprintf(stderr, "Warning : grDrawSpriteFlip(): less than %d sprites loaded in slot %d\n", imageNo, spriteNo);
@@ -493,27 +483,27 @@ void grDrawSpriteFlip(SDL_Surface *sfc, struct TTtmSlot *ttmSlot, sint16 x, sint
 
     x += grDx; y += grDy;
 
-    SDL_Surface *srcSfc = ttmSlot->sprites[imageNo][spriteNo];
-    x += srcSfc->w - 1;
+    PlatformSurface *srcSfc = ttmSlot->sprites[imageNo][spriteNo];
+    x += platformGetSurfaceWidth(srcSfc) - 1;
 
-    for (int i=0; i < srcSfc->w; i++) {
+    for (int i=0; i < platformGetSurfaceWidth(srcSfc); i++) {
 
-        SDL_Rect src = { i, 0, 1, srcSfc->h };
-        SDL_Rect dest = { x - i, y, 0, 0 };
+        PlatformRect src = { i, 0, 1, platformGetSurfaceHeight(srcSfc) };
+        PlatformRect dest = { x - i, y, 0, 0 };
 
-        SDL_BlitSurface(srcSfc, &src, sfc, &dest);
+        platformBlitSurface(srcSfc, &src, sfc, &dest);
     }
 }
 
 
-void grClearScreen(SDL_Surface *sfc)
+void grClearScreen(PlatformSurface *sfc)
 {
-    SDL_Rect rect;
+    PlatformRect rect;
 
-    SDL_GetClipRect(sfc, &rect);
-    SDL_SetClipRect(sfc, NULL);
-    SDL_FillRect(sfc, NULL, SDL_MapRGB(sfc->format, 0xa8, 0, 0xa8));
-    SDL_SetClipRect(sfc, &rect);
+    platformGetClipRect(sfc, &rect);
+    platformSetClipRect(sfc, NULL);
+    platformFillRect(sfc, NULL, 0xa8, 0, 0xa8, 0);
+    platformSetClipRect(sfc, &rect);
 }
 
 
@@ -549,11 +539,11 @@ void grLoadScreen(char *strArg)
         inPtr++;
     }
 
-    grBackgroundSfc = SDL_CreateRGBSurfaceFrom((void*)outData, width, height, 32, 4*width, 0, 0, 0, 0);
+    grBackgroundSfc = platformCreateSurfaceFrom((void*)outData, width, height, 4*width);
 }
 
 
-void grInitEmptyBackground()
+void grInitEmptyBackground(void)
 {
     if (grBackgroundSfc != NULL)
         grReleaseScreen();
@@ -563,15 +553,15 @@ void grInitEmptyBackground()
 
     uint8 *data = safe_malloc(SCREEN_WIDTH * SCREEN_HEIGHT * sizeof(uint32));
     memset(data, 0, SCREEN_WIDTH * SCREEN_HEIGHT * sizeof(uint32));
-    grBackgroundSfc = SDL_CreateRGBSurfaceFrom((void*)data, SCREEN_WIDTH, SCREEN_HEIGHT, 32, 4*SCREEN_WIDTH, 0, 0, 0, 0);
+    grBackgroundSfc = platformCreateSurfaceFrom((void*)data, SCREEN_WIDTH, SCREEN_HEIGHT, 4*SCREEN_WIDTH);
 }
 
 
 void grReleaseBmp(struct TTtmSlot *ttmSlot, uint16 bmpSlotNo)
 {
     for (int i=0; i < ttmSlot->numSprites[bmpSlotNo]; i++) {
-        free(ttmSlot->sprites[bmpSlotNo][i]->pixels);
-        SDL_FreeSurface(ttmSlot->sprites[bmpSlotNo][i]);
+        free(platformGetSurfacePixels(ttmSlot->sprites[bmpSlotNo][i]));
+        platformFreeSurface(ttmSlot->sprites[bmpSlotNo][i]);
     }
 
     ttmSlot->numSprites[bmpSlotNo] = 0;
@@ -606,19 +596,19 @@ void grLoadBmp(struct TTtmSlot *ttmSlot, uint16 slotNo, char *strArg)
             inPtr++;
         }
 
-        SDL_Surface *surface = SDL_CreateRGBSurfaceFrom((void*)outData,
-                                               width, height, 32, 4*width, 0, 0, 0, 0);
-        SDL_SetColorKey(surface, SDL_TRUE, SDL_MapRGB(surface->format, 0xa8, 0, 0xa8));
+        PlatformSurface *surface = platformCreateSurfaceFrom((void*)outData,
+                                               width, height, 4*width);
+        platformSetColorKey(surface, 0xa8, 0, 0xa8);
         ttmSlot->sprites[slotNo][image] = surface;
     }
 }
 
 
-void grFadeOut()
+void grFadeOut(void)
 {
     static int fadeOutType = 0;
-    SDL_Surface *sfc = SDL_GetWindowSurface(sdl_window);
-    SDL_Surface *tmpSfc = grNewLayer();
+    PlatformSurface *sfc = platformGetWindowSurface(platform_window);
+    PlatformSurface *tmpSfc = grNewLayer();
 
 
     grDx = grDy = 0;
@@ -632,9 +622,9 @@ void grFadeOut()
             for (int radius=20; radius <= 400; radius += 20) {
                 grDrawCircle(tmpSfc, 320 - radius, 240 - radius,
                     radius << 1, radius << 1, 5, 5);
-                SDL_BlitSurface(tmpSfc, NULL, sfc, &grScreenOrigin);
+                platformBlitSurface(tmpSfc, NULL, sfc, &grScreenOrigin);
                 eventsWaitTick(1);
-                SDL_UpdateWindowSurface(sdl_window);
+                platformUpdateWindow(platform_window);
             }
             break;
 
@@ -643,7 +633,7 @@ void grFadeOut()
             for (int i=1; i <= 20; i++) {
                 grDrawRect(sfc, grScreenOrigin.x + 320 - i*16, grScreenOrigin.y + 240 - i*12, i*32, i*24, 5);
                 eventsWaitTick(1);
-                SDL_UpdateWindowSurface(sdl_window);
+                platformUpdateWindow(platform_window);
             }
             break;
 
@@ -652,7 +642,7 @@ void grFadeOut()
             for (int i=600; i >= 0; i -= 40) {
                 grDrawRect(sfc, grScreenOrigin.x + i, grScreenOrigin.y, 40, 480, 5);
                 eventsWaitTick(1);
-                SDL_UpdateWindowSurface(sdl_window);
+                platformUpdateWindow(platform_window);
             }
             break;
 
@@ -661,7 +651,7 @@ void grFadeOut()
             for (int i=0; i < SCREEN_WIDTH; i += 40) {
                 grDrawRect(sfc, grScreenOrigin.x + i, grScreenOrigin.y, 40, SCREEN_HEIGHT, 5);
                 eventsWaitTick(1);
-                SDL_UpdateWindowSurface(sdl_window);
+                platformUpdateWindow(platform_window);
             }
             break;
 
@@ -671,7 +661,7 @@ void grFadeOut()
                 grDrawRect(sfc, grScreenOrigin.x + 320+i, grScreenOrigin.y, 20, SCREEN_HEIGHT, 5);
                 grDrawRect(sfc, grScreenOrigin.x + 300-i, grScreenOrigin.y, 20, SCREEN_HEIGHT, 5);
                 eventsWaitTick(1);
-                SDL_UpdateWindowSurface(sdl_window);
+                platformUpdateWindow(platform_window);
             }
             break;
     }
